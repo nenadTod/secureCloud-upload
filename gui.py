@@ -1,7 +1,18 @@
 from Tkinter import *
 from PIL import Image, ImageTk
+from controller import Controller
 
 class Gui:
+
+    _stat_bar_status = "Ready"
+    _stat_bar_files = "(no files)"
+    _stat_bar_connection = "Allive"
+
+    _cloud_name_value="DropBox"
+    _cloud_user_value="Pera9987"
+    _cloud_location_value="/NewFolder (1)/Slike sa mora 2015/NewFolderNewFolderNewFolder"
+
+    _files_files_list=""
 
     def __init__(self, root):
         self.create_window(root)
@@ -14,6 +25,7 @@ class Gui:
         root.geometry("420x400")
         root.minsize(width=420, height=380)
         root.iconbitmap('images/icon.ico')
+        root.protocol('WM_DELETE_WINDOW', lambda:Controller.exit_action(root))
 
     def create_status_bar(self, root):
         status_bar = Frame(root, height=25)
@@ -22,9 +34,6 @@ class Gui:
         print_status = StringVar()
         print_files = StringVar()
         print_connection = StringVar()
-        base_status = "Status: "
-        base_files = "Files: "
-        base_connection = "Connection: "
 
         label_status = Label(status_bar, width=15, textvariable=print_status, relief=RIDGE)#SUNKEN
         label_files = Label(status_bar, width=15, textvariable=print_files, relief=RIDGE)
@@ -33,9 +42,9 @@ class Gui:
         label_files.pack(side=LEFT, fill=X, expand=1)
         label_users.pack(side=LEFT, fill=X, expand=1)
 
-        value_status = base_status + "Ready"
-        value_files = base_files + "(no files imported)"
-        value_connection = base_connection + "Alive"
+        value_status = "Status: " + self._stat_bar_status
+        value_files = "Files: " + self._stat_bar_files
+        value_connection = "Connection: " + self._stat_bar_connection
         print_status.set(value_status)
         print_files.set(value_files)
         print_connection.set(value_connection)
@@ -44,23 +53,23 @@ class Gui:
         menu_bar = Menu(root)
 
         file_menu = Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="Add Folder")
-        file_menu.add_command(label="Add File")
+        file_menu.add_command(label="Add Folder", command=lambda:Controller.add_folder_action())
+        file_menu.add_command(label="Add File", command=lambda:Controller.add_file_action())
         file_menu.add_separator()
-        file_menu.add_command(label="Remove Selected File")
-        file_menu.add_command(label="Clear Files List")
+        file_menu.add_command(label="Remove Selected File", command=lambda:Controller.remove_file_action())
+        file_menu.add_command(label="Clear Files List", command=lambda:Controller.clear_all_action())
         file_menu.add_separator()
-        file_menu.add_command(label="Exit")
+        file_menu.add_command(label="Exit", command=lambda:Controller.exit_action(root))
         menu_bar.add_cascade(label="File", menu=file_menu)
 
         action_menu = Menu(menu_bar, tearoff=0)
-        action_menu.add_command(label="Encrypt And Upload")
-        action_menu.add_command(label="Cancel All")
+        action_menu.add_command(label="Encrypt And Upload", command=lambda:Controller.start_action())
+        action_menu.add_command(label="Cancel All", command=lambda:Controller.cancel_all_action())
         menu_bar.add_cascade(label="Action", menu=action_menu)
 
         account_menu = Menu(menu_bar, tearoff=0)
-        account_menu.add_command(label="Configure Cloud")
-        account_menu.add_command(label="Change Account")
+        account_menu.add_command(label="Switch Account", command=lambda:Controller.switch_account_action())
+        account_menu.add_command(label="Set Location", command=lambda:Controller.change_location_action())
         menu_bar.add_cascade(label="Account", menu=account_menu)
 
         root.config(menu=menu_bar)
@@ -84,16 +93,26 @@ class Gui:
         frame_cloud_buttons.pack(side=RIGHT, fill=BOTH, pady=0)
         frame_cloud_data.pack(side=LEFT, fill=BOTH, expand=1)
 
+        cloud_cloud = StringVar()
+        cloud_user = StringVar()
+        cloud_location = StringVar()
+
         label_cloud = Label(frame_cloud_data, anchor=W, text="Cloud name: ")
         label_user = Label(frame_cloud_data, anchor=W, text="User name: ")
         label_location = Label(frame_cloud_data, anchor=W, text="Upload location: ")
-        # label_process = Label(frame_cloud_data, width=15, textvariable=print_connection, relief=RIDGE)
-        label_cloud_value = Label(frame_cloud_data, anchor=W, text="DropBox")
-        label_user_value = Label(frame_cloud_data, anchor=W, text="Pera9987")
-        label_location_value = Label(frame_cloud_data, anchor=W, text="/NewFolder (1)/Slike sa mora 2015/NewFolderNewFolderNewFolder")
+        label_cloud_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_cloud)
+        label_user_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_user)
+        label_location_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_location)
 
-        button_switch = Button(frame_cloud_buttons, text="Switch Account", width=12, height=1)
-        button_location = Button(frame_cloud_buttons, text="Set Location", width=12, height=1)
+        value_cloud = self._cloud_name_value
+        value_user = self._cloud_user_value
+        value_location = self._cloud_location_value
+        cloud_cloud.set(value_cloud)
+        cloud_user.set(value_user)
+        cloud_location.set(value_location)
+
+        button_switch = Button(frame_cloud_buttons, text="Switch Account", width=12, height=1, command=lambda:Controller.switch_account_action())
+        button_location = Button(frame_cloud_buttons, text="Set Location", width=12, height=1, command=lambda:Controller.change_location_action())
 
         label_cloud.grid(row=0, column=0, pady=(3,3), padx=5, sticky=W)
         label_user.grid(row=1, column=0, pady=3, padx=5, sticky=W)
@@ -116,24 +135,21 @@ class Gui:
 
         files_list_scroll = Scrollbar(frame_files_panel)
         files_list_scroll.pack(side=RIGHT, fill=BOTH)
-        files_files_list = Listbox(frame_files_panel, height=1500, yscrollcommand=files_list_scroll.set)
-        files_files_list.pack(side=LEFT, fill=BOTH, padx=(10,0), expand=1)
-        files_list_scroll.config(command=files_files_list.yview)
+        self._files_files_list = Listbox(frame_files_panel,height=1500, yscrollcommand=files_list_scroll.set)
+        self._files_files_list.pack(side=LEFT, fill=BOTH, padx=(10,0), expand=1)
+        files_list_scroll.config(command=self._files_files_list.yview)
 
-        button_add_folder = Button(frame_files_buttons, text="Add Folder", width=3, height=1)
-        button_add_file = Button(frame_files_buttons, text="Add File", width=3, height=1)
-        button_remove_file = Button(frame_files_buttons, text="Remove Selected", width=3, height=1)
-        button_clear_all = Button(frame_files_buttons, text="Clear All", width=3, height=1)
+        button_add_folder = Button(frame_files_buttons, text="Add Folder", width=3, height=1, command=lambda:Controller.add_folder_action())
+        button_add_file = Button(frame_files_buttons, text="Add File", width=3, height=1, command=lambda:Controller.add_file_action())
+        button_remove_file = Button(frame_files_buttons, text="Remove Selected", width=3, height=1, command=lambda:Controller.remove_file_action())
+        button_clear_all = Button(frame_files_buttons, text="Clear All", width=3, height=1, command=lambda:Controller.clear_all_action())
         button_add_folder.pack(side=TOP, pady=(0,5), padx=(15,10))
         button_add_file.pack(side=TOP, pady=5, padx=(15,10))
         button_remove_file.pack(side=TOP, pady=5, padx=(15,10))
         button_clear_all.pack(side=TOP, pady=5, padx=(15,10))
 
-        img1 = ImageTk.PhotoImage(Image.open("images/filenew.png"))
-        button_add_folder.config(image=img1)
-
         for line in range(50):
-            files_files_list.insert(END, "This is line number " + str(line))
+            self._files_files_list.insert(END, "This is line number " + str(line))
 
         return frame_files
 
@@ -143,8 +159,8 @@ class Gui:
         #label_process = Label(frame_action, width=15, textvariable=print_connection, relief=RIDGE)
         label_process = Label(frame_action, anchor=W, text="Encrypting and uploading.....uploadinguploadinguploadinguploadinguploading")
 
-        button_cancel = Button(frame_action, text="Cancel", width=6, height=1)
-        button_start = Button(frame_action, text="Encrypt and Upload", width=18, height=1)
+        button_cancel = Button(frame_action, text="Cancel", width=6, height=1, command=lambda:Controller.cancel_all_action())
+        button_start = Button(frame_action, text="Encrypt and Upload", width=18, height=1, command=lambda:Controller.start_action())
 
         button_start.pack(side=RIGHT, fill=BOTH, pady=(5, 10), padx=(10, 10))
         button_cancel.pack(side=RIGHT, fill=BOTH, pady=(5, 10), padx=5)
