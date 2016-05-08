@@ -1,48 +1,72 @@
-
 import tkMessageBox
+import os
+import tkFileDialog
 
 class Controller:
 
-    _model=""
-    _root=""
+    @property
+    def model(self):
+        return self.__model
 
-    def __init__(self, model):
-        _model=model
+    @property
+    def root(self):
+        return self.__root
 
-    @staticmethod
-    def switch_account_action():
+    def __init__(self, root, model):
+        self.__model=model
+        self.__root=root
+
+    def switch_account_action(self):
         print("switch account")
 
-    @staticmethod
-    def change_location_action():
+    def change_location_action(self):
         print("change location")
 
-    @staticmethod
-    def add_file_action():
+    def add_file_action(self):
         print("add files")
+        selected_files=[]
+        options = {}
+        options['filetypes'] = [('Image files', '*.jpeg *.jpg *.png *.gif *.tif *.tiff *.pcd')]
+        full_files_path = tkFileDialog.askopenfilenames(**options)
 
-    @staticmethod
-    def add_folder_action():
+        if len(full_files_path) != 0:
+            files_directory = os.path.dirname(full_files_path[0])
+            for full_file_path in full_files_path:
+                file_name = os.path.basename(full_file_path)
+                full_file_path_formated = os.path.join(files_directory, file_name)
+                selected_files.append(full_file_path_formated)
+            self.model.add_files_to_list(selected_files)
+
+
+    def add_folder_action(self):
         print("add folder")
+        selected_files=[]
+        options = {}
+        full_folder_path = tkFileDialog.askdirectory(**options)
+        print(full_folder_path)
+        for path, subdirs, files in os.walk(full_folder_path):
+            for file in files:
+                if (file.endswith(".jpeg") or file.endswith(".jpg") or file.endswith(".png") or file.endswith(".gif") or file.endswith(".tif") or file.endswith(".tiff") or file.endswith(".pcd")):
+                    full_file_path = os.path.join(path, file)
+                    selected_files.append(full_file_path)
+                    print(full_file_path)
+        self.model.add_files_to_list(selected_files)
 
-    @staticmethod
-    def remove_file_action():
+    def remove_file_action(self, to_remove_index_list):
         print("remove file")
+        self.model.remove_selected(to_remove_index_list)
 
-    @staticmethod
-    def clear_all_action():
-        print("clear list")
+    def clear_all_action(self):
+        print("clear")
+        self.model.clear_files_list()
 
-    @staticmethod
-    def cancel_all_action():
+    def cancel_all_action(self):
         print("cancel")
 
-    @staticmethod
-    def start_action():
+    def start_action(self):
         print("encript and upload")
 
-    @staticmethod
-    def exit_action(root):
+    def exit_action(self):
         print("exit")
         if tkMessageBox.askokcancel("Quit?", "Are you sure you want to quit?"):
-            root.destroy()
+            self.root.destroy()

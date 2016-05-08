@@ -4,8 +4,10 @@ from controller import Controller
 from model import Model
 
 root = Tk()
-view = Gui(root)
-model = Model(view)
-control = Controller(model)
+model = Model()
+control = Controller(root, model)
+view = Gui(root, control, model)
+model.set_view(view)
+
 root.mainloop()
 
