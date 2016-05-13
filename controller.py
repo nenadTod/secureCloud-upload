@@ -1,6 +1,9 @@
 import tkMessageBox
 import os
 import tkFileDialog
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+
 
 class Controller:
 
@@ -33,14 +36,14 @@ class Controller:
             files_directory = os.path.dirname(full_files_path[0])
             for full_file_path in full_files_path:
                 file_name = os.path.basename(full_file_path)
-                full_file_path_formated = os.path.join(files_directory, file_name)
-                selected_files.append(full_file_path_formated)
+                #full_file_path_formated = os.path.join(files_directory, file_name)
+                full_file_path = full_file_path.replace("/", "\\")
+                selected_files.append(full_file_path)
             self.model.add_files_to_list(selected_files)
-
 
     def add_folder_action(self):
         print("add folder")
-        selected_files=[]
+        selected_files = []
         options = {}
         full_folder_path = tkFileDialog.askdirectory(**options)
         print(full_folder_path)
@@ -48,8 +51,9 @@ class Controller:
             for file in files:
                 if (file.endswith(".jpeg") or file.endswith(".jpg") or file.endswith(".png") or file.endswith(".gif") or file.endswith(".tif") or file.endswith(".tiff") or file.endswith(".pcd")):
                     full_file_path = os.path.join(path, file)
-                    selected_files.append(full_file_path)
-                    print(full_file_path)
+                    pt = full_file_path.replace('/', '\\')
+                    selected_files.append(pt)
+                    print(path)
         self.model.add_files_to_list(selected_files)
 
     def remove_file_action(self, to_remove_index_list):
@@ -64,7 +68,16 @@ class Controller:
         print("cancel")
 
     def start_action(self):
-        print("encript and upload")
+        gauth = GoogleAuth()
+        gauth.LocalWebserverAuth()
+
+        drive = GoogleDrive(gauth)
+
+        for f in self.model.opened_files:
+            k = f.rfind("\\") + 1
+            file1 = drive.CreateFile({'title': f[k:]})
+            file1.SetContentFile(f)
+            file1.Upload()
 
     def exit_action(self):
         print("exit")

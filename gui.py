@@ -35,7 +35,7 @@ class Gui:
     def path_type(self):
         return self.__path_type
 
-    _cloud_name_value="DropBox"
+    _cloud_name_value="Google Drive"
     _cloud_user_value="Pera9987"
     _cloud_location_value="/NewFolder (1)/Slike sa mora 2015/NewFolderNewFolderNewFolder"
 
