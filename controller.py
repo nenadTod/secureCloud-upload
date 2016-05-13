@@ -1,8 +1,7 @@
 import tkMessageBox
 import os
 import tkFileDialog
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+from google_drive_API import GoogleDriveAPI
 
 
 class Controller:
@@ -68,16 +67,10 @@ class Controller:
         print("cancel")
 
     def start_action(self):
-        gauth = GoogleAuth()
-        gauth.LocalWebserverAuth()
-
-        drive = GoogleDrive(gauth)
-
-        for f in self.model.opened_files:
-            k = f.rfind("\\") + 1
-            file1 = drive.CreateFile({'title': f[k:]})
-            file1.SetContentFile(f)
-            file1.Upload()
+        # tu if-ovi u zavisnosti od selektovanog drajva?
+        # mozda i abstraktna klasa?
+        drive = GoogleDriveAPI()
+        drive.upload(self.model.opened_files)
 
     def exit_action(self):
         print("exit")
