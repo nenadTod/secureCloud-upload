@@ -2,7 +2,7 @@ import tkMessageBox
 import os
 import tkFileDialog
 from google_drive_API import GoogleDriveAPI
-
+from one_drive_API import  OneDriveAPI
 
 class Controller:
 
@@ -69,8 +69,13 @@ class Controller:
     def start_action(self):
         # tu if-ovi u zavisnosti od selektovanog drajva?
         # mozda i abstraktna klasa?
-        drive = GoogleDriveAPI()
+
+        # drive = GoogleDriveAPI()
+        # drive.upload(self.model.opened_files)
+
+        drive = OneDriveAPI()
         drive.upload(self.model.opened_files)
+
 
     def exit_action(self):
         print("exit")
