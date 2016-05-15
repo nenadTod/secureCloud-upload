@@ -3,6 +3,8 @@ import os
 import tkFileDialog
 from google_drive_API import GoogleDriveAPI
 from one_drive_API import  OneDriveAPI
+from dropbox_API import DropboxAPI
+
 
 class Controller:
 
@@ -70,11 +72,12 @@ class Controller:
         # tu if-ovi u zavisnosti od selektovanog drajva?
         # mozda i abstraktna klasa?
 
-        # drive = GoogleDriveAPI()
-        # drive.upload(self.model.opened_files)
+        drive = GoogleDriveAPI()
+        # drive = OneDriveAPI()
+        # drive = DropboxAPI()
 
-        drive = OneDriveAPI()
         drive.upload(self.model.opened_files)
+
 
 
     def exit_action(self):
