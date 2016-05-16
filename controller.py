@@ -76,6 +76,7 @@ class Controller:
         # drive = OneDriveAPI()
         # drive = DropboxAPI()
 
+        drive.authenticate()
         drive.upload(self.model.opened_files)
 
 

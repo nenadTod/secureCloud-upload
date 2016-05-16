@@ -6,9 +6,9 @@ import tkSimpleDialog
 class DropboxAPI:
 
     def __init__(self):
-        return
+        self.client = None
 
-    def upload(self, files):
+    def authenticate(self):
 
         app_key = '8fpo1be2toxz06w'
         app_secret = '70ruabr9bbn4eq4'
@@ -26,13 +26,18 @@ class DropboxAPI:
 
         access_token, user_id = flow.finish(code)
 
-        client = dropbox.client.DropboxClient(access_token)
+        self.client = dropbox.client.DropboxClient(access_token)
 
-        acc = client.account_info()
+        acc = self.client.account_info()
 
         email = acc['email']
+
+    def upload(self, files):
+
+        if self.client is None:
+            return
 
         for f in files:
             dropbox_file = open(f, 'rb')
             k = f.rfind("\\") + 1
-            client.put_file(f[k:], dropbox_file)
+            self.client.put_file(f[k:], dropbox_file)
