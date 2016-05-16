@@ -4,10 +4,6 @@ from onedrivesdk.helpers import GetAuthCodeServer
 
 class OneDriveAPI:
 
-    # @property
-    # def gauth(self):
-    #     return self.__gauth
-    #
     def __init__(self):
         return
 
@@ -26,6 +22,10 @@ class OneDriveAPI:
         code = GetAuthCodeServer.get_auth_code(auth_url, redirect_uri)
 
         client.auth_provider.authenticate(code, redirect_uri, client_secret)
+
+        root_folder_id = client.item(drive="me", id="root").get().id
+
+        print root_folder_id
 
         for f in files:
             k = f.rfind("\\") + 1

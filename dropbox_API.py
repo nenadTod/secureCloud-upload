@@ -2,6 +2,7 @@ import dropbox
 import webbrowser
 import tkSimpleDialog
 
+
 class DropboxAPI:
 
     def __init__(self):
@@ -20,12 +21,16 @@ class DropboxAPI:
 
         code = tkSimpleDialog.askstring("Code prompt", "Enter your Dropbox code")
 
-        if (code == None):
+        if code is None:
             return
 
         access_token, user_id = flow.finish(code)
 
         client = dropbox.client.DropboxClient(access_token)
+
+        acc = client.account_info()
+
+        email = acc['email']
 
         for f in files:
             dropbox_file = open(f, 'rb')
