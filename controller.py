@@ -23,8 +23,8 @@ class Controller:
     def switch_account_action(self):
         print("switch account")
 
-    def change_location_action(self):
-        print("change location")
+    def change_drive(self, drive):
+        print("change location to ", drive)
 
     def add_file_action(self):
         print("add files")

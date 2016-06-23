@@ -131,32 +131,35 @@ class Gui:
         cloud_user = StringVar()
         cloud_location = StringVar()
 
+        self.drive_name = StringVar(frame_cloud_data)
+        self.drive_name.set("Google Drive")
+        self.drive_name.trace("w", Gui.switch_drive(self.drive_name))
+
         label_cloud = Label(frame_cloud_data, anchor=W, text="Cloud name: ")
         label_user = Label(frame_cloud_data, anchor=W, text="User name: ")
         label_location = Label(frame_cloud_data, anchor=W, text="Upload location: ")
-        label_cloud_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_cloud)
+        label_cloud_value = OptionMenu(frame_cloud_data, self.drive_name, "Google Drive", "Dropbox", "One Drive")
         label_user_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_user)
         label_location_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_location)
 
-        value_cloud = self._cloud_name_value
         value_user = self._cloud_user_value
         value_location = self._cloud_location_value
-        cloud_cloud.set(value_cloud)
         cloud_user.set(value_user)
         cloud_location.set(value_location)
 
-        button_switch = Button(frame_cloud_buttons, text="Switch Cloud", width=12, height=1, command=lambda:self.controller.switch_account_action())
+        button_switch = Button(frame_cloud_buttons, text="Switch Cloud", width=12, height=1)
         button_location = Button(frame_cloud_buttons, text="Set Location", width=12, height=1, command=lambda:self.controller.change_location_action())
 
-        label_cloud.grid(row=0, column=0, pady=(3,3), padx=5, sticky=W)
+        label_cloud.grid(row=0, column=0, pady=(0,0), padx=5, sticky=W)
         label_user.grid(row=1, column=0, pady=3, padx=5, sticky=W)
-        label_location.grid(row=2, column=0, pady=(3,10), padx=5, sticky=W)
-        label_cloud_value.grid(row=0, column=1, pady=3, padx=0, sticky=W)
+        label_location.grid(row=2, column=0, pady=(6,10), padx=5, sticky=W)
+        label_cloud_value.grid(row=0, column=1, pady=0, padx=0, sticky=W)
         label_user_value.grid(row=1, column=1, pady=3, padx=0, sticky=W)
-        label_location_value.grid(row=2, column=1, pady=(3,10), padx=0, sticky=W)
+        label_location_value.grid(row=2, column=1, pady=(6,10), padx=0, sticky=W)
 
-        button_switch.pack(side=TOP, pady=(26,1), padx=10)
-        button_location.pack(side=TOP, pady=(1,10), padx=10)
+        #button_switch.pack(side=BOTTOM, pady=(26,1), padx=10)
+        #button_location.pack(side=BOTTOM, pady=(1,10), padx=10)
+        button_location.pack(side=BOTTOM, pady=(30, 10), padx=10)
 
         return frame_cloud
 
@@ -187,16 +190,30 @@ class Gui:
 
     def create_action_panel(self, frame):
         frame_action = LabelFrame(frame, text="Actions:")
+        frame_action_up = Frame(frame_action)
+        frame_action_down = Frame(frame_action)
 
+        label_crypto = Label(frame_action_up, anchor=W, text="Nacin kriptovanja: ")
         #label_process = Label(frame_action, width=15, textvariable=print_connection, relief=RIDGE)
-        label_process = Label(frame_action, anchor=W, text="Encrypting and uploading.....uploadinguploadinguploadinguploadinguploading")
+        label_process = Label(frame_action_down, anchor=W, text="Encrypting and uploading.....uploadinguploadinguploadinguploadinguploading")
 
-        button_cancel = Button(frame_action, text="Cancel", width=6, height=1, command=lambda:self.controller.cancel_all_action())
-        button_start = Button(frame_action, text="Encrypt and Upload", width=18, height=1, command=lambda:self.controller.start_action())
+        v = IntVar()
+        v.set("1");
 
+        radiobutton1 = Radiobutton(frame_action_up, text="One", variable=v, value=1)
+        radiobutton2 = Radiobutton(frame_action_up, text="Two", variable=v, value=2)
+
+        button_cancel = Button(frame_action_down, text="Cancel", width=6, height=1, command=lambda:self.controller.cancel_all_action())
+        button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda:self.controller.start_action())
+
+        label_crypto.pack(side=LEFT, pady=(5,10), padx=5)
+        radiobutton1.pack(side=LEFT)
+        radiobutton2.pack(side=LEFT)
         button_start.pack(side=RIGHT, fill=BOTH, pady=(5, 10), padx=(10, 10))
         button_cancel.pack(side=RIGHT, fill=BOTH, pady=(5, 10), padx=5)
         label_process.pack(side=LEFT, fill=BOTH, pady=(5,10), padx=5)
+        frame_action_up.pack(anchor=W)
+        frame_action_down.pack(anchor=W)
         return frame_action
 
 ############################## FUNKCIJE ##############################
@@ -241,3 +258,8 @@ class Gui:
         self.path_type=type
         self.update_list()
 
+    @staticmethod
+    def switch_drive(sv):
+        print sv.get()
+        print('stigo');
+        #self.controller.change_drive("string")
