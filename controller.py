@@ -23,9 +23,6 @@ class Controller:
     def switch_account_action(self):
         print("switch account")
 
-    def change_drive(self, drive):
-        print("change location to ", drive)
-
     def add_file_action(self):
         print("add files")
         selected_files=[]
@@ -68,7 +65,7 @@ class Controller:
     def cancel_all_action(self):
         print("cancel")
 
-    def start_action(self):
+    def start_action(self, drive, encription_type):
         # tu if-ovi u zavisnosti od selektovanog drajva?
         # mozda i abstraktna klasa?
 

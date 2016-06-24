@@ -35,6 +35,9 @@ class Gui:
     def path_type(self):
         return self.__path_type
 
+    encoding_value = 0
+    drive_value = 0
+
     _cloud_name_value="Google Drive"
     _cloud_user_value="Pera9987"
     _cloud_location_value="/NewFolder (1)/Slike sa mora 2015/NewFolderNewFolderNewFolder"
@@ -50,7 +53,7 @@ class Gui:
 
     def create_window(self, root):
         root.title("Secure Clouding - Upload pictures")
-        root.geometry("420x400")
+        root.geometry("420x450")
         root.minsize(width=420, height=380)
         root.iconbitmap('images/icon.ico')
         root.protocol('WM_DELETE_WINDOW', lambda:self.controller.exit_action())
@@ -131,14 +134,13 @@ class Gui:
         cloud_user = StringVar()
         cloud_location = StringVar()
 
-        self.drive_name = StringVar(frame_cloud_data)
-        self.drive_name.set("Google Drive")
-        self.drive_name.trace("w", Gui.switch_drive(self.drive_name))
+        Gui.drive_value = StringVar(frame_cloud_data)
+        Gui.drive_value.set("Google Drive")
 
         label_cloud = Label(frame_cloud_data, anchor=W, text="Cloud name: ")
         label_user = Label(frame_cloud_data, anchor=W, text="User name: ")
         label_location = Label(frame_cloud_data, anchor=W, text="Upload location: ")
-        label_cloud_value = OptionMenu(frame_cloud_data, self.drive_name, "Google Drive", "Dropbox", "One Drive")
+        label_cloud_value = OptionMenu(frame_cloud_data, Gui.drive_value, "Google Drive", "Dropbox", "One Drive")
         label_user_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_user)
         label_location_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_location)
 
@@ -197,21 +199,20 @@ class Gui:
         #label_process = Label(frame_action, width=15, textvariable=print_connection, relief=RIDGE)
         label_process = Label(frame_action_down, anchor=W, text="Encrypting and uploading.....uploadinguploadinguploadinguploadinguploading")
 
-        v = IntVar()
-        v.set("1");
-
-        radiobutton1 = Radiobutton(frame_action_up, text="One", variable=v, value=1)
-        radiobutton2 = Radiobutton(frame_action_up, text="Two", variable=v, value=2)
+        Gui.encoding_value = IntVar()
+        radiobutton1 = Radiobutton(frame_action_up, text="One", variable=Gui.encoding_value, value=1)
+        radiobutton2 = Radiobutton(frame_action_up, text="Two", variable=Gui.encoding_value, value=2)
+        Gui.encoding_value.set(1)
 
         button_cancel = Button(frame_action_down, text="Cancel", width=6, height=1, command=lambda:self.controller.cancel_all_action())
-        button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda:self.controller.start_action())
+        button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda:self.create_start_action())
 
         label_crypto.pack(side=LEFT, pady=(5,10), padx=5)
         radiobutton1.pack(side=LEFT)
         radiobutton2.pack(side=LEFT)
-        button_start.pack(side=RIGHT, fill=BOTH, pady=(5, 10), padx=(10, 10))
-        button_cancel.pack(side=RIGHT, fill=BOTH, pady=(5, 10), padx=5)
-        label_process.pack(side=LEFT, fill=BOTH, pady=(5,10), padx=5)
+        button_start.pack(side=RIGHT, pady=(5, 10), padx=(10, 10))
+        button_cancel.pack(side=RIGHT, pady=(5, 10), padx=5)
+        label_process.pack(side=LEFT, expand=1, pady=(5,10), padx=5)
         frame_action_up.pack(anchor=W)
         frame_action_down.pack(anchor=W)
         return frame_action
@@ -258,8 +259,5 @@ class Gui:
         self.path_type=type
         self.update_list()
 
-    @staticmethod
-    def switch_drive(sv):
-        print sv.get()
-        print('stigo');
-        #self.controller.change_drive("string")
+    def create_start_action(self):
+        self.controller.start_action(Gui.drive_value.get(), Gui.encoding_value.get())
