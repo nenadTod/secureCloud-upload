@@ -45,18 +45,17 @@ class Controller:
         options = {}
         full_folder_path = tkFileDialog.askdirectory(**options)
         print(full_folder_path)
-        for path, subdirs, files in os.walk(full_folder_path):
-            for file in files:
-                if (file.endswith(".jpeg") or file.endswith(".jpg") or file.endswith(".png") or file.endswith(".gif") or file.endswith(".tif") or file.endswith(".tiff") or file.endswith(".pcd")):
-                    full_file_path = os.path.join(path, file)
-                    pt = full_file_path.replace('/', '\\')
-                    selected_files.append(pt)
-                    print(path)
+        for file in os.listdir(full_folder_path):
+            if (file.endswith(".jpeg") or file.endswith(".jpg") or file.endswith(".png") or file.endswith(".gif") or file.endswith(".tif") or file.endswith(".tiff") or file.endswith(".pcd")):
+                full_file_path = os.path.join(full_folder_path, file)
+                pt = full_file_path.replace('/', '\\')
+                selected_files.append(pt)
         self.model.add_files_to_list(selected_files)
 
     def remove_file_action(self, to_remove_index_list):
-        print("remove file")
-        self.model.remove_selected(to_remove_index_list)
+        print("remove file/files")
+        if len(to_remove_index_list) > 0:
+            self.model.remove_selected(to_remove_index_list)
 
     def clear_all_action(self):
         print("clear")

@@ -1,5 +1,8 @@
 from Tkinter import *
+from PIL import Image, ImageTk
 import os
+
+
 
 class Gui:
 
@@ -50,11 +53,12 @@ class Gui:
         self.create_status_bar(root)
         self.create_menu_bar(root)
         self.create_panels(root)
+        self.files_selected_list = []
 
     def create_window(self, root):
         root.title("Secure Clouding - Upload pictures")
-        root.geometry("420x450")
-        root.minsize(width=420, height=380)
+        root.geometry("420x460")
+        root.minsize(width=420, height=440)
         root.iconbitmap('images/icon.ico')
         root.protocol('WM_DELETE_WINDOW', lambda:self.controller.exit_action())
 
@@ -87,16 +91,18 @@ class Gui:
         file_menu.add_command(label="Add Folder", command=lambda:self.controller.add_folder_action())
         file_menu.add_command(label="Add File", command=lambda:self.controller.add_file_action())
         file_menu.add_separator()
-        file_menu.add_command(label="Remove Selected File", command=lambda:self.controller.remove_file_action(self.files_selected_list))
+        file_menu.add_command(label="Remove Selected File/Files", command=lambda:self.controller.remove_file_action(self.files_selected_list))
         file_menu.add_command(label="Clear Files List", command=lambda:self.controller.clear_all_action())
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=lambda:self.controller.exit_action())
         menu_bar.add_cascade(label="File", menu=file_menu)
 
+        value_var = IntVar()
         view_menu = Menu(menu_bar, tearoff=0)
-        view_menu.add_radiobutton(label="Show Full Path", var=1, command=lambda: self.set_path_type(0))
-        view_menu.add_radiobutton(label="Show Folder And File Name", var=1, command=lambda: self.set_path_type(1))
-        view_menu.add_radiobutton(label="Show File Name", var=1, command=lambda: self.set_path_type(2))
+        view_menu.add_radiobutton(label="Show Full Path", var=value_var, value=1, command=lambda: self.set_path_type(0))
+        view_menu.add_radiobutton(label="Show Folder And File Name", var=value_var, value=2, command=lambda: self.set_path_type(1))
+        view_menu.add_radiobutton(label="Show File Name", var=value_var, value=3, command=lambda: self.set_path_type(2))
+        value_var.set(1)
         menu_bar.add_cascade(label="View", menu=view_menu)
 
         action_menu = Menu(menu_bar, tearoff=0)
@@ -180,14 +186,24 @@ class Gui:
         self.files_list.insert(END, "(no files choosen)")
         files_list_scroll.config(command=self.files_list.yview)
 
-        button_add_folder = Button(frame_files_buttons, text="Add Folder", width=3, height=1, command=lambda:self.controller.add_folder_action())
-        button_add_file = Button(frame_files_buttons, text="Add File", width=3, height=1, command=lambda:self.controller.add_file_action())
-        button_remove_file = Button(frame_files_buttons, text="Remove Selected", width=3, height=1, command=lambda:self.controller.remove_file_action(self.files_selected_list))
-        button_clear_all = Button(frame_files_buttons, text="Clear All", width=3, height=1, command=lambda:self.controller.clear_all_action())
-        button_add_folder.pack(side=TOP, pady=(0,5), padx=(15,10))
-        button_add_file.pack(side=TOP, pady=5, padx=(15,10))
-        button_remove_file.pack(side=TOP, pady=5, padx=(15,10))
-        button_clear_all.pack(side=TOP, pady=5, padx=(15,10))
+        addfile = ImageTk.PhotoImage(file="images/addfile.png")
+        addfold = ImageTk.PhotoImage(file="images/addfolder.png")
+        remov = ImageTk.PhotoImage(file="images/remove.png")
+        clear = ImageTk.PhotoImage(file="images/clear.png")
+
+        button_add_folder = Button(frame_files_buttons, width=25, height=25, image=addfold, command=lambda:self.controller.add_folder_action())
+        button_add_file = Button(frame_files_buttons, width=25, height=25, image=addfile, command=lambda:self.controller.add_file_action())
+        button_remove_file = Button(frame_files_buttons, width=25, height=25, image=remov, command=lambda:self.controller.remove_file_action(self.files_selected_list))
+        button_clear_all = Button(frame_files_buttons, width=25, height=25, image=clear, command=lambda:self.controller.clear_all_action())
+        button_add_folder.image = addfold
+        button_add_file.image = addfile
+        button_remove_file.image = remov
+        button_clear_all.image = clear
+
+        button_add_file.pack(side=TOP, pady=(0,5), padx=(15,10))
+        button_add_folder.pack(side=TOP, pady=5, padx=(15,10))
+        button_clear_all.pack(side=BOTTOM, pady=5, padx=(15,10))
+        button_remove_file.pack(side=BOTTOM, pady=5, padx=(15,10))
         return frame_files
 
     def create_action_panel(self, frame):
@@ -207,14 +223,14 @@ class Gui:
         button_cancel = Button(frame_action_down, text="Cancel", width=6, height=1, command=lambda:self.controller.cancel_all_action())
         button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda:self.create_start_action())
 
+        frame_action_up.pack(anchor=W)
+        frame_action_down.pack(anchor=E)
         label_crypto.pack(side=LEFT, pady=(5,10), padx=5)
         radiobutton1.pack(side=LEFT)
         radiobutton2.pack(side=LEFT)
         button_start.pack(side=RIGHT, pady=(5, 10), padx=(10, 10))
         button_cancel.pack(side=RIGHT, pady=(5, 10), padx=5)
-        label_process.pack(side=LEFT, expand=1, pady=(5,10), padx=5)
-        frame_action_up.pack(anchor=W)
-        frame_action_down.pack(anchor=W)
+        #label_process.pack(side=LEFT, expand=100, pady=(5,10), padx=5)
         return frame_action
 
 ############################## FUNKCIJE ##############################
