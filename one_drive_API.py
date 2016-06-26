@@ -1,4 +1,6 @@
 import onedrivesdk
+import httplib2
+import json
 from onedrivesdk.helpers import GetAuthCodeServer
 
 
@@ -6,6 +8,7 @@ class OneDriveAPI:
 
     def __init__(self):
         self.client = None
+        self.access_token = ""
 
     def authenticate(self):
 
@@ -23,6 +26,18 @@ class OneDriveAPI:
         code = GetAuthCodeServer.get_auth_code(auth_url, redirect_uri)
 
         self.client.auth_provider.authenticate(code, redirect_uri, client_secret)
+        self.access_token = self.client.auth_provider._session.access_token
+
+
+    def getUserData(self):
+        h = httplib2.Http()
+        resp, content = h.request(
+            uri='https://apis.live.net/v5.0/me?access_token=' + self.access_token,
+            method='GET'
+        )
+
+        data = json.loads(content)
+        print data['id']
 
     def upload(self, files):
 
