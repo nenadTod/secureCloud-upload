@@ -65,16 +65,18 @@ class Controller:
         print("cancel")
 
     def start_action(self, selectedDrive, encryption_type):
-        # tu if-ovi u zavisnosti od selektovanog drajva?
         # mozda i abstraktna klasa?
 
-        # drive = GoogleDriveAPI()
-        drive = OneDriveAPI()
-        # drive = DropboxAPI()
+        if selectedDrive == 'Google Drive':
+            drive = GoogleDriveAPI()
+        elif selectedDrive == 'One Drive':
+            drive = OneDriveAPI()
+        else:
+            drive = DropboxAPI()
 
         drive.authenticate()
         drive.getUserData()
-       # drive.upload(self.model.opened_files)
+        drive.upload(self.model.opened_files)
 
 
 
