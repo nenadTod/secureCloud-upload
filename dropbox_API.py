@@ -45,4 +45,4 @@ class DropboxAPI:
         for f in files:
             dropbox_file = open(f, 'rb')
             k = f.rfind("\\") + 1
-            self.client.put_file(f[k:], dropbox_file)
+            self.client.put_file('/Secure-Upload/' + f[k:], dropbox_file)
