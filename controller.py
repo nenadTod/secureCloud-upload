@@ -1,10 +1,14 @@
 import tkMessageBox
 import os
 import tkFileDialog
+import ntpath
+import shutil
 from google_drive_API import GoogleDriveAPI
-from one_drive_API import  OneDriveAPI
+from one_drive_API import OneDriveAPI
 from dropbox_API import DropboxAPI
 
+from Crypto.Cipher import AES
+from SCCrypto import SCCrypto
 
 class Controller:
 
@@ -65,7 +69,36 @@ class Controller:
         print("cancel")
 
     def start_action(self, selectedDrive, encryption_type):
-        # mozda i abstraktna klasa?
+
+        sc = SCCrypto()
+
+        #temp_files
+        temp_dir = "/sc_temp"
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
+        file_list = []
+
+        for f in self.model.opened_files:
+            with open(f, 'rb') as fhI:
+                file_name = ntpath.split(f)[1]
+                file_path = temp_dir + "/" + file_name
+                pic_data = fhI.read()
+
+
+                #encryption - bice zamenjene random vrendostima, naravno :)
+                aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
+                enc_pic_data = aes.encrypt(pic_data)
+                enc_pic_data_hex = sc.bin2hex(enc_pic_data)
+
+                with open(file_path, 'w') as fhO:
+                    fhO.write(enc_pic_data_hex)
+
+                abs_file_path = os.path.abspath(file_path)
+                file_list.append(abs_file_path)
+
+
+        # mozda i abstraktna klasa? Ja bih rekao da da:P
 
         if selectedDrive == 'Google Drive':
             drive = GoogleDriveAPI()
@@ -76,7 +109,22 @@ class Controller:
 
         drive.authenticate()
         drive.get_user_data()
-        drive.upload(self.model.opened_files)
+        drive.upload(file_list)
+
+        """
+        #proof, uncomment to se effects
+        with open(file_list[0], 'r') as fhI:
+            enc_pic_data_hex = fhI.read()
+            enc_pic_data_bin = sc.hex2bin(enc_pic_data_hex)
+
+            aes2 = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
+            dec_pic_data_bin = aes2.decrypt(enc_pic_data_bin)
+
+            with open("/sc_temp/proof.png", 'wb') as fhO:
+                fhO.write(dec_pic_data_bin)
+        """
+
+        shutil.rmtree(temp_dir)
 
     def exit_action(self):
         print("exit")
