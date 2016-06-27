@@ -1,10 +1,11 @@
 import onedrivesdk
 import httplib2
 import json
+from abstract_drive_API import AbstractDriveAPI
 from onedrivesdk.helpers import GetAuthCodeServer
 
 
-class OneDriveAPI:
+class OneDriveAPI(AbstractDriveAPI):
 
     def __init__(self):
         self.client = None

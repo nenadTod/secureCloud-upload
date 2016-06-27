@@ -2,9 +2,10 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import httplib2
 import json
+from abstract_drive_API import AbstractDriveAPI
 
 
-class GoogleDriveAPI:
+class GoogleDriveAPI(AbstractDriveAPI):
 
     def __init__(self):
         self.gauth = None

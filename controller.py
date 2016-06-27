@@ -1,14 +1,16 @@
-import tkMessageBox
-import os
-import tkFileDialog
 import ntpath
+import os
 import shutil
-from google_drive_API import GoogleDriveAPI
-from one_drive_API import OneDriveAPI
-from dropbox_API import DropboxAPI
+import tkFileDialog
+import tkMessageBox
 
 from Crypto.Cipher import AES
+from cloud_API.dropbox_API import DropboxAPI
+from cloud_API.one_drive_API import OneDriveAPI
+
 from SCCrypto import SCCrypto
+from cloud_API.google_drive_API import GoogleDriveAPI
+
 
 class Controller:
 
