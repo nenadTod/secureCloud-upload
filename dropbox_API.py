@@ -28,14 +28,16 @@ class DropboxAPI:
 
         self.client = dropbox.client.DropboxClient(access_token)
 
-
-    def getUserData(self):
+    def get_user_data(self):
         acc = self.client.account_info()
 
         email = acc['email']
         print email
+        return email
 
     def upload(self, files):
+        if not files:
+            return
 
         if self.client is None:
             return

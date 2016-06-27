@@ -75,10 +75,8 @@ class Controller:
             drive = DropboxAPI()
 
         drive.authenticate()
-        drive.getUserData()
+        drive.get_user_data()
         drive.upload(self.model.opened_files)
-
-
 
     def exit_action(self):
         print("exit")
