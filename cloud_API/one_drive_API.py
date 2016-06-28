@@ -1,10 +1,11 @@
 import onedrivesdk
 import httplib2
 import json
+from abstract_drive_API import AbstractDriveAPI
 from onedrivesdk.helpers import GetAuthCodeServer
 
 
-class OneDriveAPI:
+class OneDriveAPI(AbstractDriveAPI):
 
     def __init__(self):
         self.client = None
@@ -18,6 +19,7 @@ class OneDriveAPI:
         self.client = onedrivesdk.get_default_client(client_id='0000000048197E3B',
                                                 scopes=['wl.signin',
                                                         'wl.offline_access',
+                                                        'wl.skydrive_update',
                                                         'onedrive.readwrite'])
 
         auth_url = self.client.auth_provider.get_auth_url(redirect_uri)
@@ -28,8 +30,7 @@ class OneDriveAPI:
         self.client.auth_provider.authenticate(code, redirect_uri, client_secret)
         self.access_token = self.client.auth_provider._session.access_token
 
-
-    def getUserData(self):
+    def get_user_data(self):
         h = httplib2.Http()
         resp, content = h.request(
             uri='https://apis.live.net/v5.0/me?access_token=' + self.access_token,
@@ -38,13 +39,40 @@ class OneDriveAPI:
 
         data = json.loads(content)
         print data['id']
+        return data['id']
 
     def upload(self, files):
 
-        root_folder_id = self.client.item(drive="me", id="root").get().id
+        if not files:
+            return
 
-        print root_folder_id
+        folder_id = self.create_folder()
+
+        if folder_id is None:
+            root_folder = self.client.item(drive="me", id="root").children.get()
+            for rf in root_folder:
+                if rf.name == 'Secure-Cloud':
+                    folder_id = rf.id
 
         for f in files:
             k = f.rfind("\\") + 1
-            returned_item = self.client.item(drive="me", id="root").children[f[k:]].upload(f)
+            returned_item = self.client.item(drive="me", id=folder_id).children[f[k:]].upload(f)
+
+    def create_folder(self):
+        try:
+            h = httplib2.Http()
+            bodyData = {
+                "name": "Secure-Cloud"
+            }
+            bodyData = json.dumps(bodyData)
+            resp, content = h.request(
+                uri='https://apis.live.net/v5.0/me/skydrive',
+                method='POST',
+                headers={'Authorization': 'Bearer ' + self.access_token, 'Content-Type': 'application/json'},
+                body=bodyData
+            )
+            data = json.loads(content)
+            data_id = data['id'].split('.')[-1]
+            return data_id
+        except:
+            return None

@@ -1,15 +1,12 @@
-import tkMessageBox
-import os
-import tkFileDialog
 import ntpath
+import os
 import shutil
+import tkFileDialog
 import requests
-from google_drive_API import GoogleDriveAPI
-from one_drive_API import OneDriveAPI
-from dropbox_API import DropboxAPI
-
 from Crypto.Cipher import AES
+
 from SCCrypto import SCCrypto
+
 
 class Controller:
 
@@ -111,7 +108,7 @@ class Controller:
             drive = DropboxAPI()
 
         drive.authenticate()
-        drive.getUserData()
+        drive.get_user_data()
         drive.upload(file_list)
 
         """

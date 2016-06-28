@@ -1,9 +1,10 @@
 import dropbox
 import webbrowser
 import tkSimpleDialog
+from abstract_drive_API import AbstractDriveAPI
 
 
-class DropboxAPI:
+class DropboxAPI(AbstractDriveAPI):
 
     def __init__(self):
         self.client = None
@@ -28,14 +29,16 @@ class DropboxAPI:
 
         self.client = dropbox.client.DropboxClient(access_token)
 
-
-    def getUserData(self):
+    def get_user_data(self):
         acc = self.client.account_info()
 
         email = acc['email']
         print email
+        return email
 
     def upload(self, files):
+        if not files:
+            return
 
         if self.client is None:
             return
@@ -43,4 +46,7 @@ class DropboxAPI:
         for f in files:
             dropbox_file = open(f, 'rb')
             k = f.rfind("\\") + 1
-            self.client.put_file(f[k:], dropbox_file)
+            self.client.put_file('/Secure-Upload/' + f[k:], dropbox_file)
+
+    def create_folder(self):
+        pass

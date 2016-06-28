@@ -2,9 +2,10 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import httplib2
 import json
+from abstract_drive_API import AbstractDriveAPI
 
 
-class GoogleDriveAPI:
+class GoogleDriveAPI(AbstractDriveAPI):
 
     def __init__(self):
         self.gauth = None
@@ -19,7 +20,7 @@ class GoogleDriveAPI:
 
         self.access_token = self.gauth.credentials.access_token
 
-    def getUserData(self):
+    def get_user_data(self):
         h = httplib2.Http()
         resp, content = h.request(
             uri='https://www.googleapis.com/drive/v2/about',
@@ -29,6 +30,7 @@ class GoogleDriveAPI:
 
         data = json.loads(content)
         print data['user']['emailAddress']
+        return data['user']['emailAddress']
 
     def upload(self, files):
 
@@ -46,14 +48,14 @@ class GoogleDriveAPI:
         folder_id = None
 
         if not data['items']:
-            folder_id = self.createFolder()
+            folder_id = self.create_folder()
         else:
             for d in data['items']:
                 if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['explicitlyTrashed']:
                     folder_id = d['id']
 
             if folder_id is None:
-                folder_id = self.createFolder()
+                folder_id = self.create_folder()
 
         for f in files:
             k = f.rfind("\\") + 1
@@ -61,7 +63,7 @@ class GoogleDriveAPI:
             file1.SetContentFile(f)
             file1.Upload()
 
-    def createFolder(self):
+    def create_folder(self):
         hf = httplib2.Http()
         bodyData = {
                 "title": "Secure-Cloud",
