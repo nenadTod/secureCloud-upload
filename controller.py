@@ -3,6 +3,7 @@ import os
 import tkFileDialog
 import ntpath
 import shutil
+import requests
 from google_drive_API import GoogleDriveAPI
 from one_drive_API import OneDriveAPI
 from dropbox_API import DropboxAPI
@@ -72,6 +73,8 @@ class Controller:
 
         sc = SCCrypto()
 
+        r = requests.get('http://127.0.0.1:8000/api/trial')
+
         #temp_files
         temp_dir = "/sc_temp"
         if not os.path.exists(temp_dir):
@@ -89,7 +92,7 @@ class Controller:
                 #encryption - bice zamenjene random vrendostima, naravno :)
                 aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
                 enc_pic_data = aes.encrypt(pic_data)
-                enc_pic_data_hex = sc.bin2hex(enc_pic_data)
+                enc_pic_data_hex = sc.bin2hex(enc_pic_data)#ovo ti mozda i ne treba, zbog cuvanja mesta.. madaa?
 
                 with open(file_path, 'w') as fhO:
                     fhO.write(enc_pic_data_hex)

@@ -6,13 +6,13 @@ from Crypto.Cipher import AES
 
 sc = SCCrypto()
 #igranje sa kljucem, split, merge i encrypt sa RSA
-key = RSA.generate(2048);
+key = RSA.generate(2048)
 xord = sc.splitSK_RSA(key)
 
 key2 = sc.mergeSK_RSA(xord[0],xord[1])
 
-keyStr = key.exportKey('PEM');
-keyStr2 = key2.exportKey('PEM');
+keyStr = key.exportKey('PEM')
+keyStr2 = key2.exportKey('PEM')
 
 
 
