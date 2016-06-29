@@ -1,6 +1,7 @@
 from Crypto.PublicKey import RSA
 from Crypto.Util import strxor
 from Crypto import Random
+import binascii
 import base64
 import os
 import ntpath
@@ -12,7 +13,7 @@ class SCCrypto:
         self.length_RSA = 2048
         self.key_beginning_RSA = "-----BEGIN RSA PRIVATE KEY-----\n"
         self.key_ending_RSA = "\n-----END RSA PRIVATE KEY-----\n"
-
+        self.length_AES = 24
 
     #splits secret key (using new key and string xor)
     def splitSK_RSA(self, key):
@@ -27,14 +28,16 @@ class SCCrypto:
 
         if len(sk)>len(sk2):
             needed = len(sk)-len(sk2)
-            sk2 = sk2 + Random.new().read(needed);
+            sk2 = sk2 + Random.new().read(needed)
 
         if len(sk) < len(sk2):
             sk2 = sk2[:len(sk)]
 
         xord = strxor.strxor(sk, sk2)
-        xord = base64.b64encode(xord)
-#        sk2 = base64.b64decode(sk2)
+        xord = binascii.hexlify(xord)
+        sk2 = binascii.hexlify(sk2)
+
+        xord = binascii.b2a_base64(xord)
 
         return [xord, sk2]#2. vraca onaj koji je vec bio string tipa
 
@@ -42,8 +45,8 @@ class SCCrypto:
     #merges two string keys into a RSA key that can only encrypt
     def mergeSK_RSA(self, sk1, sk2):
 
-        sk1 = base64.b64decode(sk1)
-        sk2 = base64.b64decode(sk2)
+        sk1 = binascii.unhexlify(sk1)
+        sk2 = binascii.unhexlify(sk2)
 
         sk = strxor.strxor(sk1, sk2)
         sk = self.key_beginning_RSA + sk + self.key_ending_RSA
@@ -63,6 +66,9 @@ class SCCrypto:
     def encrypt_images(self, temp_dir, opened_files, sec_key):
 
         file_list = []
+        iv_list = []
+
+        sim_key = Random.new().read(self.length_AES)
 
         for f in opened_files:
             with open(f, 'rb') as fhI:
@@ -70,9 +76,8 @@ class SCCrypto:
                 file_path = temp_dir + "/" + file_name
                 pic_data = fhI.read()
 
-                sim_key = "askldsjkuierocme"
-                iv = 'asdfghjkqwertyui'
-
+                iv = Random.new().read(16)
+                iv_list.append(self.bin2b64(iv))
                 #encryption - bice zamenjene random vrendostima, naravno :)
                 aes = AES.new(sim_key, AES.MODE_CFB, iv)
                 enc_pic_data = aes.encrypt(pic_data)
@@ -84,6 +89,9 @@ class SCCrypto:
                 abs_file_path = os.path.abspath(file_path)
                 file_list.append(abs_file_path)
 
-                esk = sec_key.encrypt(sim_key, 'x')[0]
+        esk = sec_key.encrypt(sim_key, 'x')[0]
+        esk = self.bin2b64(esk)
 
-        return [file_list, esk, iv]
+
+
+        return [file_list, esk, iv_list]

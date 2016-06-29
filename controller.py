@@ -7,6 +7,7 @@ from cloud_API.google_drive_API import GoogleDriveAPI
 from Crypto.PublicKey import RSA
 import requests
 from Crypto.Cipher import AES
+import binascii
 
 
 from SCCrypto import SCCrypto
@@ -77,7 +78,8 @@ class Controller:
         # r = requests.get('http://127.0.0.1:8000/api/trial')
 
         #temp_files
-        temp_dir = "/sc_temp"
+        #temp_dir = "/sc_temp"
+        temp_dir = "/sc_mock" + "/sc_temp"
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
 
@@ -86,9 +88,16 @@ class Controller:
         retVal = sc.encrypt_images(temp_dir, self.model.opened_files, mock_key)
         file_list = retVal[0]
         enc_sim_key = retVal[1]
-        iv = retVal[2]
+        iv_list = retVal[2]
         # mozda i abstraktna klasa? Ja bih rekao da da:P
-
+        """
+        with open("/sc_mock/sc_temp/meta.txt", 'w') as fhO:
+            fhO.write(enc_sim_key + "\n")
+            i = 0
+            for f in file_list:
+                fhO.write(f + " " + str(iv_list[i]) + "\n")
+                i += 1
+        """
         if selectedDrive == 'Google Drive':
             drive = GoogleDriveAPI()
         elif selectedDrive == 'One Drive':
@@ -116,25 +125,33 @@ class Controller:
         #shutil.rmtree(temp_dir) zbog mockupa nema unistavanja.
 
         #sve ispod je eksperimentalnog karaktera :D
-        """
+
         #mock_files
+        """
         mock_dir = "/sc_mock"
         mock_sc_meta1 = mock_dir + "/" + "mock_meta1.txt"
-        mock_sc_meta2 = mock_dir + "/" + "mock_meta2.txt"
+
 
         splitted = sc.splitSK_RSA(mock_key)
 
         with open(mock_sc_meta1, 'w') as fhO:
                     fhO.write(splitted[0])
 
-        with open(mock_sc_meta2, 'w') as fhO:
-                    fhO.write(splitted[1])
 
-        mock_dir2 = "/sc_mock_download"
+
+        mock_dir2 = "/sc_storage"
         if not os.path.exists(mock_dir2):
             os.makedirs(mock_dir2)
 
-        dsk = mock_key.decrypt(enc_sim_key)
+        sc_meta2 = "/sc_storage" + "/" + "skp.txt"
+        with open(sc_meta2, 'w') as fhO:
+                    fhO.write(splitted[1])
+
+        sc_meta3 = "/sc_storage" + "/" + "pk.txt"
+        with open(sc_meta3, 'w') as fhO:
+                    fhO.write(mock_key.publickey().exportKey())
+        dsk = mock_key.decrypt(sc.b642bin(enc_sim_key))
+
 
         i = 1
         for f in file_list:
@@ -142,11 +159,11 @@ class Controller:
                 enc_pic_data_hex = fhI.read()
                 enc_pic_data_bin = sc.b642bin(enc_pic_data_hex)
 
-                aes2 = AES.new(dsk, AES.MODE_CFB, iv)
+                aes2 = AES.new(dsk, AES.MODE_CFB, sc.b642bin(iv_list[i-1]))
                 dec_pic_data_bin = aes2.decrypt(enc_pic_data_bin)
 
                 iStr = str(i)
-                location = mock_dir2 + "/proof" + iStr + ".png";
+                location = mock_dir2 + "/proof" + iStr + ".png"
                 with open(location, 'wb') as fhO:
                     fhO.write(dec_pic_data_bin)
             i += 1
