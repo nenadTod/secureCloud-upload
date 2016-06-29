@@ -78,7 +78,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
                         subfolder_id = d['id']
 
                 if subfolder_id is None:
-                    subfolder_id = self.create_folder(folder_id, folder_id)
+                    subfolder_id = self.create_folder(folder_id, folder_name)
 
         if subfolder_id is not None:
             folder_id = subfolder_id

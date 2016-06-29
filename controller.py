@@ -2,8 +2,13 @@ import ntpath
 import os
 import shutil
 import tkFileDialog
+import tkMessageBox
+from cloud_API.dropbox_API import DropboxAPI
+from cloud_API.one_drive_API import OneDriveAPI
+from cloud_API.google_drive_API import GoogleDriveAPI
 import requests
 from Crypto.Cipher import AES
+
 
 from SCCrypto import SCCrypto
 
@@ -70,7 +75,7 @@ class Controller:
 
         sc = SCCrypto()
 
-        r = requests.get('http://127.0.0.1:8000/api/trial')
+        # r = requests.get('http://127.0.0.1:8000/api/trial')
 
         #temp_files
         temp_dir = "/sc_temp"

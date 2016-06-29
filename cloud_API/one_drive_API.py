@@ -46,33 +46,22 @@ class OneDriveAPI(AbstractDriveAPI):
         if not files:
             return
 
-        folder_id = self.create_folder('Secure-Cloud')
+        folder_id = self.create_folder("root", 'Secure-Cloud')
+        subfolder_id = self.create_folder(folder_id, folder_name)
 
-        if folder_id is None:
-            root_folder = self.client.item(drive="me", id="root").children.get()
-            for rf in root_folder:
-                if rf.name == 'Secure-Cloud':
-                    folder_id = rf.id
+        if subfolder_id is not None:
+            folder_id = subfolder_id
 
         for f in files:
             k = f.rfind("\\") + 1
             returned_item = self.client.item(drive="me", id=folder_id).children[f[k:]].upload(f)
 
     def create_folder(self, parent, name):
-        try:
-            h = httplib2.Http()
-            bodyData = {
-                "name": name
-            }
-            bodyData = json.dumps(bodyData)
-            resp, content = h.request(
-                uri='https://apis.live.net/v5.0/me/skydrive',
-                method='POST',
-                headers={'Authorization': 'Bearer ' + self.access_token, 'Content-Type': 'application/json'},
-                body=bodyData
-            )
-            data = json.loads(content)
-            data_id = data['id'].split('.')[-1]
-            return data_id
-        except:
-            return None
+
+        f = onedrivesdk.Folder()
+        i = onedrivesdk.Item()
+        i.name = name
+        i.folder = f
+
+        returned_item = self.client.item(drive="me", id=parent).children.add(i)
+        return returned_item.id
