@@ -1,7 +1,10 @@
 from Crypto.PublicKey import RSA
 from Crypto.Util import strxor
 from Crypto import Random
-import  binascii
+import base64
+import os
+import ntpath
+from Crypto.Cipher import AES
 
 class SCCrypto:
 
@@ -29,18 +32,18 @@ class SCCrypto:
         if len(sk) < len(sk2):
             sk2 = sk2[:len(sk)]
 
-        xord = strxor.strxor(sk,sk2)
-        xord = binascii.hexlify(xord)
-        sk2 = binascii.hexlify(sk2)
+        xord = strxor.strxor(sk, sk2)
+        xord = base64.b64encode(xord)
+#        sk2 = base64.b64decode(sk2)
 
-        return [xord, sk2]
+        return [xord, sk2]#2. vraca onaj koji je vec bio string tipa
 
 
     #merges two string keys into a RSA key that can only encrypt
     def mergeSK_RSA(self, sk1, sk2):
 
-        sk1 = binascii.unhexlify(sk1)
-        sk2 = binascii.unhexlify(sk2)
+        sk1 = base64.b64decode(sk1)
+        sk2 = base64.b64decode(sk2)
 
         sk = strxor.strxor(sk1, sk2)
         sk = self.key_beginning_RSA + sk + self.key_ending_RSA
@@ -50,9 +53,37 @@ class SCCrypto:
 
         return key
 
-    def bin2hex(self, binStr):
-        return binascii.hexlify(binStr)
+    def bin2b64(self, binStr):
+        return base64.b64encode(binStr)
 
 
-    def hex2bin(self, hexStr):
-        return binascii.unhexlify(hexStr)
+    def b642bin(self, b64Str):
+        return base64.b64decode(b64Str)
+
+    def encrypt_images(self, temp_dir, opened_files, sec_key):
+
+        file_list = []
+
+        for f in opened_files:
+            with open(f, 'rb') as fhI:
+                file_name = ntpath.split(f)[1]
+                file_path = temp_dir + "/" + file_name
+                pic_data = fhI.read()
+
+                sim_key = "askldsjkuierocme"
+                iv = 'asdfghjkqwertyui'
+
+                #encryption - bice zamenjene random vrendostima, naravno :)
+                aes = AES.new(sim_key, AES.MODE_CFB, iv)
+                enc_pic_data = aes.encrypt(pic_data)
+                enc_pic_data_hex = self.bin2b64(enc_pic_data)#ovo ti mozda i ne treba, zbog cuvanja mesta.. madaa?
+
+                with open(file_path, 'w') as fhO:
+                    fhO.write(enc_pic_data_hex)
+
+                abs_file_path = os.path.abspath(file_path)
+                file_list.append(abs_file_path)
+
+                esk = sec_key.encrypt(sim_key, 'x')[0]
+
+        return [file_list, esk, iv]

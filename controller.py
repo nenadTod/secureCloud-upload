@@ -1,6 +1,4 @@
-import ntpath
 import os
-import shutil
 import tkFileDialog
 import tkMessageBox
 
@@ -9,6 +7,7 @@ from setuptools.command import upload_docs
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
+from Crypto.PublicKey import RSA
 import requests
 from Crypto.Cipher import AES
 
@@ -104,7 +103,11 @@ class Controller:
                 abs_file_path = os.path.abspath(file_path)
                 file_list.append(abs_file_path)
 
-
+        mock_key = RSA.generate(2048)#OBAVEZNO IZBRISI OVO POSLE.
+        retVal = sc.encrypt_images(temp_dir, self.model.opened_files, mock_key)
+        file_list = retVal[0]
+        enc_sim_key = retVal[1]
+        iv = retVal[2]
         # mozda i abstraktna klasa? Ja bih rekao da da:P
 
         if selectedDrive == 'Google Drive':
@@ -122,7 +125,7 @@ class Controller:
         #proof, uncomment to se effects
         with open(file_list[0], 'r') as fhI:
             enc_pic_data_hex = fhI.read()
-            enc_pic_data_bin = sc.hex2bin(enc_pic_data_hex)
+            enc_pic_data_bin = sc.b642bin(enc_pic_data_hex)
 
             aes2 = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
             dec_pic_data_bin = aes2.decrypt(enc_pic_data_bin)
@@ -131,8 +134,44 @@ class Controller:
                 fhO.write(dec_pic_data_bin)
         """
 
-        shutil.rmtree(temp_dir)
+        #shutil.rmtree(temp_dir) zbog mockupa nema unistavanja.
 
+        #sve ispod je eksperimentalnog karaktera :D
+        """
+        #mock_files
+        mock_dir = "/sc_mock"
+        mock_sc_meta1 = mock_dir + "/" + "mock_meta1.txt"
+        mock_sc_meta2 = mock_dir + "/" + "mock_meta2.txt"
+
+        splitted = sc.splitSK_RSA(mock_key)
+
+        with open(mock_sc_meta1, 'w') as fhO:
+                    fhO.write(splitted[0])
+
+        with open(mock_sc_meta2, 'w') as fhO:
+                    fhO.write(splitted[1])
+
+        mock_dir2 = "/sc_mock_download"
+        if not os.path.exists(mock_dir2):
+            os.makedirs(mock_dir2)
+
+        dsk = mock_key.decrypt(enc_sim_key)
+
+        i = 1
+        for f in file_list:
+            with open(f, 'r') as fhI:
+                enc_pic_data_hex = fhI.read()
+                enc_pic_data_bin = sc.b642bin(enc_pic_data_hex)
+
+                aes2 = AES.new(dsk, AES.MODE_CFB, iv)
+                dec_pic_data_bin = aes2.decrypt(enc_pic_data_bin)
+
+                iStr = str(i)
+                location = mock_dir2 + "/proof" + iStr + ".png";
+                with open(location, 'wb') as fhO:
+                    fhO.write(dec_pic_data_bin)
+            i += 1
+        """
     def exit_action(self):
         print("exit")
         if tkMessageBox.askokcancel("Quit?", "Are you sure you want to quit?"):

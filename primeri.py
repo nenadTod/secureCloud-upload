@@ -9,7 +9,7 @@ sc = SCCrypto()
 key = RSA.generate(2048)
 xord = sc.splitSK_RSA(key)
 
-key2 = sc.mergeSK_RSA(xord[0],xord[1])
+key2 = sc.mergeSK_RSA(xord[0], xord[1])
 
 keyStr = key.exportKey('PEM')
 keyStr2 = key2.exportKey('PEM')
@@ -18,10 +18,10 @@ keyStr2 = key2.exportKey('PEM')
 
 msg = "Warriors dance"
 print msg
-emsg = key2.encrypt(msg,'x')[0]
-emsgStr = sc.bin2hex(emsg)
+emsg = key2.encrypt(msg, 'x')[0]
+emsgStr = sc.bin2b64(emsg)
 print emsgStr
-emsg2 = sc.hex2bin(emsgStr)
+emsg2 = sc.b642bin(emsgStr)
 dmsg = key.decrypt(emsg2)
 print dmsg
 
@@ -43,7 +43,7 @@ aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
 with open('images/icon.ico', 'rb') as fhI:
 
     picData = fhI.read()
-    picDataStr = sc.bin2hex(picData)
+    picDataStr = sc.bin2b64(picData)
     aes_emsg = aes.encrypt(picDataStr)
     with open('images/koji2.jpg', 'w') as fhO:
         fhO.write(aes_emsg)
@@ -52,7 +52,7 @@ with open('images/icon.ico', 'rb') as fhI:
     #print emsg
     aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
     aes_dmsg = aes.decrypt(aes_emsg)
-    picData2 = sc.hex2bin(aes_dmsg)
+    picData2 = sc.b642bin(aes_dmsg)
 
     print len(picData)
     print len(picData2)
