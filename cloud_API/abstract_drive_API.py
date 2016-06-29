@@ -17,5 +17,5 @@ class AbstractDriveAPI(object):
         pass
 
     @abstractmethod
-    def create_folder(self):
+    def create_folder(self, name, folder_name):
         pass

@@ -41,12 +41,12 @@ class OneDriveAPI(AbstractDriveAPI):
         print data['id']
         return data['id']
 
-    def upload(self, files):
+    def upload(self, files, folder_name):
 
         if not files:
             return
 
-        folder_id = self.create_folder()
+        folder_id = self.create_folder('Secure-Cloud')
 
         if folder_id is None:
             root_folder = self.client.item(drive="me", id="root").children.get()
@@ -58,11 +58,11 @@ class OneDriveAPI(AbstractDriveAPI):
             k = f.rfind("\\") + 1
             returned_item = self.client.item(drive="me", id=folder_id).children[f[k:]].upload(f)
 
-    def create_folder(self):
+    def create_folder(self, parent, name):
         try:
             h = httplib2.Http()
             bodyData = {
-                "name": "Secure-Cloud"
+                "name": name
             }
             bodyData = json.dumps(bodyData)
             resp, content = h.request(

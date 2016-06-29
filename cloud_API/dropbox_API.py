@@ -36,17 +36,22 @@ class DropboxAPI(AbstractDriveAPI):
         print email
         return email
 
-    def upload(self, files):
+    def upload(self, files, folder_name):
         if not files:
             return
 
         if self.client is None:
             return
 
+        destination = '/Secure-Upload/'
+
+        if folder_name is not None:
+            destination = destination + folder_name + '/'
+
         for f in files:
             dropbox_file = open(f, 'rb')
             k = f.rfind("\\") + 1
-            self.client.put_file('/Secure-Upload/' + f[k:], dropbox_file)
+            self.client.put_file(destination + f[k:], dropbox_file)
 
-    def create_folder(self):
+    def create_folder(self, name):
         pass

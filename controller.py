@@ -111,7 +111,7 @@ class Controller:
 
         drive.authenticate()
         drive.get_user_data()
-        drive.upload(file_list)
+        drive.upload(file_list, 'Test')
 
         """
         #proof, uncomment to se effects
