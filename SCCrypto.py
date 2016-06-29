@@ -34,9 +34,9 @@ class SCCrypto:
 
         xord = strxor.strxor(sk, sk2)
         xord = base64.b64encode(xord)
-        sk2 = base64.b64decode(sk2)
+#        sk2 = base64.b64decode(sk2)
 
-        return [xord, sk2]
+        return [xord, sk2]#2. vraca onaj koji je vec bio string tipa
 
 
     #merges two string keys into a RSA key that can only encrypt
@@ -57,10 +57,10 @@ class SCCrypto:
         return base64.b64encode(binStr)
 
 
-    def b642bin(self, hexStr):
-        return base64.b64decode(hexStr)
+    def b642bin(self, b64Str):
+        return base64.b64decode(b64Str)
 
-    def encrypt_images(self,temp_dir, opened_files):
+    def encrypt_images(self, temp_dir, opened_files, sec_key):
 
         file_list = []
 
@@ -70,9 +70,11 @@ class SCCrypto:
                 file_path = temp_dir + "/" + file_name
                 pic_data = fhI.read()
 
+                sim_key = "askldsjkuierocme"
+                iv = 'asdfghjkqwertyui'
 
                 #encryption - bice zamenjene random vrendostima, naravno :)
-                aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
+                aes = AES.new(sim_key, AES.MODE_CFB, iv)
                 enc_pic_data = aes.encrypt(pic_data)
                 enc_pic_data_hex = self.bin2b64(enc_pic_data)#ovo ti mozda i ne treba, zbog cuvanja mesta.. madaa?
 
@@ -82,4 +84,6 @@ class SCCrypto:
                 abs_file_path = os.path.abspath(file_path)
                 file_list.append(abs_file_path)
 
-        return file_list
+                esk = sec_key.encrypt(sim_key, 'x')[0]
+
+        return [file_list, esk, iv]
