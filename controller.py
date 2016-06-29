@@ -1,7 +1,7 @@
 import os
 import tkFileDialog
 import tkMessageBox
-
+import ntpath
 from setuptools.command import upload_docs
 
 from cloud_API.dropbox_API import DropboxAPI
@@ -86,8 +86,8 @@ class Controller:
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
 
+        """
         file_list = []
-
         for f in self.model.opened_files:
             with open(f, 'rb') as fhI:
                 file_name = ntpath.split(f)[1]
@@ -104,21 +104,21 @@ class Controller:
 
                 abs_file_path = os.path.abspath(file_path)
                 file_list.append(abs_file_path)
-
+        """
         mock_key = RSA.generate(2048)#OBAVEZNO IZBRISI OVO POSLE.
         retVal = sc.encrypt_images(temp_dir, self.model.opened_files, mock_key)
         file_list = retVal[0]
         enc_sim_key = retVal[1]
         iv_list = retVal[2]
         # mozda i abstraktna klasa? Ja bih rekao da da:P
-        """
+
         with open("/sc_mock/sc_temp/meta.txt", 'w') as fhO:
             fhO.write(enc_sim_key + "\n")
             i = 0
             for f in file_list:
                 fhO.write(f + " " + str(iv_list[i]) + "\n")
                 i += 1
-        """
+
         if selectedDrive == 'Google Drive':
             drive = GoogleDriveAPI()
         elif selectedDrive == 'One Drive':
@@ -148,7 +148,7 @@ class Controller:
         #sve ispod je eksperimentalnog karaktera :D
 
         #mock_files
-        """
+
         mock_dir = "/sc_mock"
         mock_sc_meta1 = mock_dir + "/" + "mock_meta1.txt"
 
@@ -171,24 +171,31 @@ class Controller:
         sc_meta3 = "/sc_storage" + "/" + "pk.txt"
         with open(sc_meta3, 'w') as fhO:
                     fhO.write(mock_key.publickey().exportKey())
-        dsk = mock_key.decrypt(sc.b642bin(enc_sim_key))
+        #dsk = mock_key.decrypt(sc.b642bin(enc_sim_key))
+        dsk = None
+        with open("/sc_mock/sc_temp/meta.txt", 'r') as fhI:
+            i = 1
+            for line in fhI:
+                line_content = str.split(line)
+                if len(line_content) == 1:
+                    dsk = mock_key.decrypt(sc.b642bin(line_content[0]))
+                else:
+
+                    with open(line_content[0], 'r') as fhI2:
+                        enc_pic_data_hex = fhI2.read()
+                        enc_pic_data_bin = sc.b642bin(enc_pic_data_hex)
+
+                        aes2 = AES.new(dsk, AES.MODE_CFB, sc.b642bin(line_content[1]))
+                        dec_pic_data_bin = aes2.decrypt(enc_pic_data_bin)
+
+                        iStr = str(i)
+                        location = mock_dir2 + "/proof" + iStr + ".png"
+                        with open(location, 'wb') as fhO:
+                            fhO.write(dec_pic_data_bin)
+                    i += 1
 
 
-        i = 1
-        for f in file_list:
-            with open(f, 'r') as fhI:
-                enc_pic_data_hex = fhI.read()
-                enc_pic_data_bin = sc.b642bin(enc_pic_data_hex)
 
-                aes2 = AES.new(dsk, AES.MODE_CFB, sc.b642bin(iv_list[i-1]))
-                dec_pic_data_bin = aes2.decrypt(enc_pic_data_bin)
-
-                iStr = str(i)
-                location = mock_dir2 + "/proof" + iStr + ".png"
-                with open(location, 'wb') as fhO:
-                    fhO.write(dec_pic_data_bin)
-            i += 1
-        """
     def exit_action(self):
         print("exit")
         if tkMessageBox.askokcancel("Quit?", "Are you sure you want to quit?"):
