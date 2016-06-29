@@ -3,6 +3,9 @@ import os
 import shutil
 import tkFileDialog
 import tkMessageBox
+
+from setuptools.command import upload_docs
+
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
@@ -71,7 +74,7 @@ class Controller:
     def cancel_all_action(self):
         print("cancel")
 
-    def start_action(self, selectedDrive, encryption_type):
+    def start_action(self, selectedDrive, encryption_type, upload_location):
 
         sc = SCCrypto()
 
@@ -89,7 +92,6 @@ class Controller:
                 file_name = ntpath.split(f)[1]
                 file_path = temp_dir + "/" + file_name
                 pic_data = fhI.read()
-
 
                 #encryption - bice zamenjene random vrendostima, naravno :)
                 aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
@@ -114,7 +116,7 @@ class Controller:
 
         drive.authenticate()
         drive.get_user_data()
-        drive.upload(file_list, 'Test')
+        drive.upload(file_list, upload_location)
 
         """
         #proof, uncomment to se effects

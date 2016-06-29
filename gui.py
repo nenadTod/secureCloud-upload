@@ -1,7 +1,10 @@
 from Tkinter import *
 from PIL import Image, ImageTk
+import tkMessageBox
 import os
+import re
 
+from django.core.serializers.xml_serializer import EntitiesForbidden
 
 
 class Gui:
@@ -40,10 +43,11 @@ class Gui:
 
     encoding_value = 0
     drive_value = 0
+    location_enabled = False
+    label_location_value = 0
+    button_location = 0
 
-    _cloud_name_value="Google Drive"
     _cloud_user_value="Pera9987"
-    _cloud_location_value="/NewFolder (1)/Slike sa mora 2015/NewFolderNewFolderNewFolder"
 
     def __init__(self, root, controller, model):
         self.__controller=controller
@@ -106,13 +110,13 @@ class Gui:
         menu_bar.add_cascade(label="View", menu=view_menu)
 
         action_menu = Menu(menu_bar, tearoff=0)
-        action_menu.add_command(label="Encrypt And Upload", command=lambda:self.controller.start_action())
+        action_menu.add_command(label="Encrypt And Upload", command=lambda:self.check_start_action())
         action_menu.add_command(label="Cancel All", command=lambda:self.controller.cancel_all_action())
         menu_bar.add_cascade(label="Action", menu=action_menu)
 
         account_menu = Menu(menu_bar, tearoff=0)
         account_menu.add_command(label="Switch Cloud", command=lambda:self.controller.switch_account_action())
-        account_menu.add_command(label="Set Location", command=lambda:self.controller.change_location_action())
+        account_menu.add_command(label="Change/Set Location", command=lambda: self.update_location())
         menu_bar.add_cascade(label="Account", menu=account_menu)
 
         root.config(menu=menu_bar)
@@ -136,7 +140,6 @@ class Gui:
         frame_cloud_buttons.pack(side=RIGHT, fill=BOTH, pady=0)
         frame_cloud_data.pack(side=LEFT, fill=BOTH, expand=1)
 
-        cloud_cloud = StringVar()
         cloud_user = StringVar()
         cloud_location = StringVar()
 
@@ -148,26 +151,26 @@ class Gui:
         label_location = Label(frame_cloud_data, anchor=W, text="Upload location: ")
         label_cloud_value = OptionMenu(frame_cloud_data, Gui.drive_value, "Google Drive", "Dropbox", "One Drive")
         label_user_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_user)
-        label_location_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_location)
+        Gui.label_location_value = Entry(frame_cloud_data, text="secure-clouding", width=40)
+        Gui.label_location_value.insert(10,"secure-clouding")
+        Gui.label_location_value.configure(state='readonly')
 
         value_user = self._cloud_user_value
-        value_location = self._cloud_location_value
         cloud_user.set(value_user)
-        cloud_location.set(value_location)
 
         button_switch = Button(frame_cloud_buttons, text="Switch Cloud", width=12, height=1)
-        button_location = Button(frame_cloud_buttons, text="Set Location", width=12, height=1, command=lambda:self.controller.change_location_action())
+        Gui.button_location = Button(frame_cloud_buttons, text="Change Location", width=12, height=1, command=lambda:self.update_location())
 
         label_cloud.grid(row=0, column=0, pady=(0,0), padx=5, sticky=W)
         label_user.grid(row=1, column=0, pady=3, padx=5, sticky=W)
         label_location.grid(row=2, column=0, pady=(6,10), padx=5, sticky=W)
         label_cloud_value.grid(row=0, column=1, pady=0, padx=0, sticky=W)
         label_user_value.grid(row=1, column=1, pady=3, padx=0, sticky=W)
-        label_location_value.grid(row=2, column=1, pady=(6,10), padx=0, sticky=W)
+        Gui.label_location_value.grid(row=2, column=1, pady=(6,10), padx=0, sticky=W)
 
         #button_switch.pack(side=BOTTOM, pady=(26,1), padx=10)
         #button_location.pack(side=BOTTOM, pady=(1,10), padx=10)
-        button_location.pack(side=BOTTOM, pady=(30, 10), padx=10)
+        Gui.button_location.pack(side=BOTTOM, pady=(30, 8), padx=10)
 
         return frame_cloud
 
@@ -221,7 +224,7 @@ class Gui:
         Gui.encoding_value.set(1)
 
         button_cancel = Button(frame_action_down, text="Cancel", width=6, height=1, command=lambda:self.controller.cancel_all_action())
-        button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda:self.create_start_action())
+        button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda:self.check_start_action())
 
         frame_action_up.pack(anchor=W)
         frame_action_down.pack(anchor=E)
@@ -276,4 +279,26 @@ class Gui:
         self.update_list()
 
     def create_start_action(self):
-        self.controller.start_action(Gui.drive_value.get(), Gui.encoding_value.get())
+        self.controller.start_action(Gui.drive_value.get(), Gui.encoding_value.get(), Gui.label_location_value.get())
+
+    def update_location(self):
+        if (Gui.location_enabled):
+            location = Gui.label_location_value.get()
+            pattern = re.compile("^([A-Za-z0-9\-\_])+$")
+            if pattern.match(location):
+                Gui.label_location_value.configure(state='readonly')
+                Gui.location_enabled = False
+                Gui.button_location.configure(text="Change Location")
+            else:
+                tkMessageBox.showinfo("Wrong Location Name", "Location name can contain only:\n"
+                                    "Letters, Numbers, Underscores and/or Dashes!\nPlease retype location!")
+        else:
+            Gui.label_location_value.configure(state='normal')
+            Gui.location_enabled = True
+            Gui.button_location.configure(text="Set Location")
+
+    def check_start_action(self):
+        if (Gui.location_enabled):
+            tkMessageBox.showinfo("Missing Location Name","Please confirm upload location\nand then try again!")
+        else:
+            self.create_start_action()
