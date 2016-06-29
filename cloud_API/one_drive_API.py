@@ -47,14 +47,19 @@ class OneDriveAPI(AbstractDriveAPI):
             return
 
         folder_id = self.create_folder("root", 'Secure-Cloud')
+        main_folder_id = folder_id
 
         if folder_name is not None:
             subfolder_id = self.create_folder(folder_id, folder_name)
             folder_id = subfolder_id
 
+
         for f in files:
             k = f.rfind("\\") + 1
             returned_item = self.client.item(drive="me", id=folder_id).children[f[k:]].upload(f)
+
+        self.list_folder_content(main_folder_id)
+        self.download_files(folder_id)
 
     def create_folder(self, parent, name):
 
@@ -65,3 +70,20 @@ class OneDriveAPI(AbstractDriveAPI):
 
         returned_item = self.client.item(drive="me", id=parent).children.add(i)
         return returned_item.id
+
+    def list_folder_content(self, folder_id):
+
+        collection = self.client.item(drive="me", id=folder_id).children.get()
+
+        for item in collection:
+            if item.folder is not None:
+                print item.name
+                print item.id
+
+    def download_files(self, folder_id):
+        folder = self.client.item(drive="me", id=folder_id).children.get()
+        i = 0
+        for item in folder:
+            if item.file is not None:
+                self.client.item(drive="me", id=item.id).download("./" + item.name)
+                i += 1

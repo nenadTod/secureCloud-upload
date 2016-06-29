@@ -43,7 +43,7 @@ class DropboxAPI(AbstractDriveAPI):
         if self.client is None:
             return
 
-        destination = '/Secure-Upload/'
+        destination = '/Secure-Cloud/'
 
         if folder_name is not None:
             destination = destination + folder_name + '/'
@@ -55,3 +55,26 @@ class DropboxAPI(AbstractDriveAPI):
 
     def create_folder(self, name):
         pass
+
+    def list_folder_content(self, path='/Secure-Cloud'):
+        folder_content = self.client.metadata(path)
+
+        for con in folder_content['contents']:
+            if con['is_dir'] is True:
+                print con['path']
+
+    def download_files(self, path):
+        folder_content = self.client.metadata(path)
+
+        fs = open('berlin.txt', 'rb')
+        response = self.client.put_file('/berlin.txt', fs)
+
+        for con in folder_content['contents']:
+            if con['is_dir'] is False:
+                out = open('fajl.txt', 'w+')
+
+                with self.client.get_file(con['path']) as f:
+                    out.write(f.read())
+
+        with self.client.get_file('/Secure-Upload/test.txt') as f:
+            out.write(f.read())
