@@ -1,7 +1,10 @@
 from Crypto.PublicKey import RSA
 from Crypto.Util import strxor
 from Crypto import Random
-import  binascii
+import base64
+import os
+import ntpath
+from Crypto.Cipher import AES
 
 class SCCrypto:
 
@@ -29,9 +32,9 @@ class SCCrypto:
         if len(sk) < len(sk2):
             sk2 = sk2[:len(sk)]
 
-        xord = strxor.strxor(sk,sk2)
-        xord = binascii.hexlify(xord)
-        sk2 = binascii.hexlify(sk2)
+        xord = strxor.strxor(sk, sk2)
+        xord = base64.b64encode(xord)
+        sk2 = base64.b64decode(sk2)
 
         return [xord, sk2]
 
@@ -39,8 +42,8 @@ class SCCrypto:
     #merges two string keys into a RSA key that can only encrypt
     def mergeSK_RSA(self, sk1, sk2):
 
-        sk1 = binascii.unhexlify(sk1)
-        sk2 = binascii.unhexlify(sk2)
+        sk1 = base64.b64decode(sk1)
+        sk2 = base64.b64decode(sk2)
 
         sk = strxor.strxor(sk1, sk2)
         sk = self.key_beginning_RSA + sk + self.key_ending_RSA
@@ -50,9 +53,33 @@ class SCCrypto:
 
         return key
 
-    def bin2hex(self, binStr):
-        return binascii.hexlify(binStr)
+    def bin2b64(self, binStr):
+        return base64.b64encode(binStr)
 
 
-    def hex2bin(self, hexStr):
-        return binascii.unhexlify(hexStr)
+    def b642bin(self, hexStr):
+        return base64.b64decode(hexStr)
+
+    def encrypt_images(self,temp_dir, opened_files):
+
+        file_list = []
+
+        for f in opened_files:
+            with open(f, 'rb') as fhI:
+                file_name = ntpath.split(f)[1]
+                file_path = temp_dir + "/" + file_name
+                pic_data = fhI.read()
+
+
+                #encryption - bice zamenjene random vrendostima, naravno :)
+                aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
+                enc_pic_data = aes.encrypt(pic_data)
+                enc_pic_data_hex = self.bin2b64(enc_pic_data)#ovo ti mozda i ne treba, zbog cuvanja mesta.. madaa?
+
+                with open(file_path, 'w') as fhO:
+                    fhO.write(enc_pic_data_hex)
+
+                abs_file_path = os.path.abspath(file_path)
+                file_list.append(abs_file_path)
+
+        return file_list
