@@ -47,9 +47,9 @@ class OneDriveAPI(AbstractDriveAPI):
             return
 
         folder_id = self.create_folder("root", 'Secure-Cloud')
-        subfolder_id = self.create_folder(folder_id, folder_name)
 
-        if subfolder_id is not None:
+        if folder_name is not None:
+            subfolder_id = self.create_folder(folder_id, folder_name)
             folder_id = subfolder_id
 
         for f in files:
