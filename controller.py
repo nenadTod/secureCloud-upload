@@ -1,6 +1,9 @@
 import os
 import tkFileDialog
 import tkMessageBox
+
+from setuptools.command import upload_docs
+
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
@@ -71,7 +74,7 @@ class Controller:
     def cancel_all_action(self):
         print("cancel")
 
-    def start_action(self, selectedDrive, encryption_type):
+    def start_action(self, selectedDrive, encryption_type, upload_location):
 
         sc = SCCrypto()
 
@@ -83,6 +86,24 @@ class Controller:
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
 
+        file_list = []
+
+        for f in self.model.opened_files:
+            with open(f, 'rb') as fhI:
+                file_name = ntpath.split(f)[1]
+                file_path = temp_dir + "/" + file_name
+                pic_data = fhI.read()
+
+                #encryption - bice zamenjene random vrendostima, naravno :)
+                aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
+                enc_pic_data = aes.encrypt(pic_data)
+                enc_pic_data_hex = sc.bin2hex(enc_pic_data)#ovo ti mozda i ne treba, zbog cuvanja mesta.. madaa?
+
+                with open(file_path, 'w') as fhO:
+                    fhO.write(enc_pic_data_hex)
+
+                abs_file_path = os.path.abspath(file_path)
+                file_list.append(abs_file_path)
 
         mock_key = RSA.generate(2048)#OBAVEZNO IZBRISI OVO POSLE.
         retVal = sc.encrypt_images(temp_dir, self.model.opened_files, mock_key)
@@ -107,7 +128,7 @@ class Controller:
 
         drive.authenticate()
         drive.get_user_data()
-        drive.upload(file_list, 'Test')
+        drive.upload(file_list, upload_location)
 
         """
         #proof, uncomment to se effects
