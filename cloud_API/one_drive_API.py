@@ -41,7 +41,6 @@ class OneDriveAPI(AbstractDriveAPI):
         )
 
         data = json.loads(content)
-        print data['id']
         return data['id']
 
     def upload(self, files, folder_name):
@@ -72,11 +71,13 @@ class OneDriveAPI(AbstractDriveAPI):
     def list_subfolders(self):
 
         collection = self.client.item(drive="me", id=self.main_folder).children.get()
+        ret = {}
 
         for item in collection:
             if item.folder is not None:
-                print item.name
-                print item.id
+               ret[item.name] = item.id
+
+        return ret
 
     def download_files(self, folder_id):
         folder = self.client.item(drive="me", id=folder_id).children.get()

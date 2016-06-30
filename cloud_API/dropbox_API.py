@@ -33,7 +33,6 @@ class DropboxAPI(AbstractDriveAPI):
         acc = self.client.account_info()
 
         email = acc['email']
-        print email
         return email
 
     def upload(self, files, folder_name):
@@ -58,10 +57,13 @@ class DropboxAPI(AbstractDriveAPI):
 
     def list_subfolders(self, path='/Secure-Cloud'):
         folder_content = self.client.metadata(path)
+        ret = {}
 
         for con in folder_content['contents']:
             if con['is_dir'] is True:
-                print con['path']
+                ret[con['path']] = con['path']
+
+        return ret
 
     def download_files(self, path):
         folder_content = self.client.metadata(path)

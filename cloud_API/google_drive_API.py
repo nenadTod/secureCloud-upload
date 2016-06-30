@@ -31,7 +31,6 @@ class GoogleDriveAPI(AbstractDriveAPI):
         )
 
         data = json.loads(content)
-        print data['user']['emailAddress']
         return data['user']['emailAddress']
 
     def upload(self, files, folder_name):
@@ -91,10 +90,13 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
     def list_subfolders(self):
         folder_id = self.main_folder
+        ret = {}
         file_list = self.drive.ListFile({'q': "'" + str(
             folder_id) + "' in parents and trashed=false and mimeType='application/vnd.google-apps.folder'"}).GetList()
         for file1 in file_list:
-            print 'title: %s, id: %s' % (file1['title'], file1['id'])
+            ret[file1['title']] = file1['id']
+
+        return ret
 
     def download_files(self, folder_id):
 

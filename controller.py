@@ -2,6 +2,9 @@ import os
 import tkFileDialog
 import tkMessageBox
 from download_gui import DownloadGui
+import shutil
+import json
+import bcrypt
 import ntpath
 from setuptools.command import upload_docs
 from Crypto.Hash import SHA256
@@ -36,7 +39,6 @@ class Controller:
         print("switch account")
 
     def add_file_action(self):
-        print("add files")
         selected_files=[]
         options = {}
         options['filetypes'] = [('Image files', '*.jpeg *.jpg *.png *.gif *.tif *.tiff *.pcd')]
@@ -55,7 +57,6 @@ class Controller:
         download_view = DownloadGui(["da"])
 
     def add_folder_action(self):
-        print("add folder")
         selected_files = []
         options = {}
         full_folder_path = tkFileDialog.askdirectory(**options)
@@ -68,26 +69,22 @@ class Controller:
         self.model.add_files_to_list(selected_files)
 
     def remove_file_action(self, to_remove_index_list):
-        print("remove file/files")
         if len(to_remove_index_list) > 0:
             self.model.remove_selected(to_remove_index_list)
 
     def clear_all_action(self):
-        print("clear")
         self.model.clear_files_list()
 
     def cancel_all_action(self):
         print("cancel")
 
-    def start_action(self, selectedDrive, encryption_type, upload_location):
+    def start_action(self, selected_drive, encryption_type, upload_location):
 
         sc = SCCrypto()
 
-
-
         #temp_files
-        #temp_dir = "/sc_temp"
-        temp_dir = "/sc_mock" + "/sc_temp"
+        temp_dir = "/sc_temp" #OVO ZAKOMENTARISI KADA BUDES SA ONIM DOLE :)
+        #temp_dir = "/sc_mock" + "/sc_temp"
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
 
@@ -124,9 +121,9 @@ class Controller:
                 fhO.write(f + " " + str(iv_list[i]) + "\n")
                 i += 1
 
-        if selectedDrive == 'Google Drive':
+        if selected_drive == 'Google Drive':
             drive = GoogleDriveAPI()
-        elif selectedDrive == 'One Drive':
+        elif selected_drive == 'One Drive':
             drive = OneDriveAPI()
         else:
             drive = DropboxAPI()
@@ -134,29 +131,31 @@ class Controller:
         drive.authenticate()
         id = drive.get_user_data()
         drive.upload(file_list, upload_location)
+        list = drive.list_subfolders()
 
+        """ Komunikacija sa serverom
         hid = SHA256.new(id).hexdigest()
         print hid
-        #r = requests.post('http://127.0.0.1:8000/api/trial/', json={"id": hid})
+        r = requests.post('http://127.0.0.1:8000/api/exist/', json={"id": hid})
+
+        dct = json.loads(r.content)
+        retVal = dct[0]['retVal']
+
+        if retVal == "No":
+            reqM = SHA256.new("nenadtod@live.com").hexdigest()
+            psw = bcrypt.hashpw("hassan", bcrypt.gensalt())
+            r = requests.post('http://127.0.0.1:8000/api/newE/', json={"id": hid, "psw": psw, "reqM": reqM})
+        else:
+            psw = "hassan"
+            r = requests.post('http://127.0.0.1:8000/api/getPK/', json={"id": hid, "psw": psw})
         """
-        #proof, uncomment to se effects
-        with open(file_list[0], 'r') as fhI:
-            enc_pic_data_hex = fhI.read()
-            enc_pic_data_bin = sc.b642bin(enc_pic_data_hex)
 
-            aes2 = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
-            dec_pic_data_bin = aes2.decrypt(enc_pic_data_bin)
 
-            with open("/sc_temp/proof.png", 'wb') as fhO:
-                fhO.write(dec_pic_data_bin)
-        """
-
-        #shutil.rmtree(temp_dir) zbog mockupa nema unistavanja.
-
+        shutil.rmtree(temp_dir)
         #sve ispod je eksperimentalnog karaktera :D
 
         #mock_files
-
+        """dekripcija odradjena, ceka neka lepsa vremena :D
         mock_dir = "/sc_mock"
         mock_sc_meta1 = mock_dir + "/" + "mock_meta1.txt"
 
@@ -202,7 +201,9 @@ class Controller:
                             fhO.write(dec_pic_data_bin)
                     i += 1
 
+        self.clear_all_action()
 
+"""
 
     def exit_action(self):
         print("exit")
