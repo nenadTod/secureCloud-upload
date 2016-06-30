@@ -2,11 +2,13 @@ from Tkinter import *
 
 class DownloadGui:
 
-    def __init__(self, folders_list):
+    def __init__(self, controller, folders_dictionary):
         self.root=Tk()
+        self.controller=controller
+        self.galleries_dictionary=folders_dictionary
+        self.galleries_list = folders_dictionary.keys()
         self.create_window()
-        self.create_body(folders_list)
-        self.gallery_chosen=""
+        self.create_body(self.galleries_list)
 
     def create_window(self):
         self.root.grab_set_global()
@@ -14,6 +16,7 @@ class DownloadGui:
         self.root.geometry("340x190")
         self.root.resizable(width=False, height=False)
         self.root.iconbitmap('images/icon.ico')
+        self.root.protocol('WM_DELETE_WINDOW', lambda: self.exit_action())
 
     def create_body(self, folders_list):
         frame = LabelFrame(self.root, text="Download Gallery:")
@@ -23,12 +26,14 @@ class DownloadGui:
         label_info = Label(frame, justify=LEFT, wraplength=320,
                            text="From here you can download content of your SecureCloud galery to your computer.")
         label_gallery = Label(frame, text="Choose Gallery:")
-        button_ok = Button(frame_buttons, text="Download", width=17, height=1 ,command=lambda: self.download_action())
+
+        gallery_chosen = StringVar(frame)
+        gallery_chosen.set(folders_list[0])
+        cloud_value = apply(OptionMenu, (frame, gallery_chosen) + tuple(folders_list))
+
+        button_ok = Button(frame_buttons, text="Download", width=17, height=1 ,command=lambda: self.prepare_download(gallery_chosen))
         button_cancel = Button(frame_buttons, text="Cancel", width=12, height=1 ,command=lambda: self.exit_action())
 
-        self.gallery_chosen = StringVar(frame)
-        self.gallery_chosen.set(folders_list[0])
-        cloud_value = apply(OptionMenu, (frame, self.gallery_chosen) + tuple(folders_list))
         cloud_value.configure(width=28)
         cloud_value.configure(justify=LEFT)
         cloud_value.configure(anchor=W)
@@ -41,9 +46,11 @@ class DownloadGui:
         button_ok.pack(side=RIGHT,anchor=E, padx=8)
         button_cancel.pack(side=RIGHT,anchor=E, padx=8)
 
-
     def exit_action(self):
         self.root.destroy()
 
-    def download_action(self):
-        print "tu je"
+    def prepare_download(self, gallery_chosen):
+        key = gallery_chosen.get()
+        value = self.galleries_dictionary[key]
+        self.root.destroy()
+        self.controller.download_action(value)

@@ -54,7 +54,13 @@ class Controller:
             self.model.add_files_to_list(selected_files)
 
     def open_download(self):
-        download_view = DownloadGui(["da"])
+        download_view = DownloadGui(self, {'sape': 4139, 'guido': 4127, 'jack': 4098})
+
+
+    def download_action(self, folder_value):
+        options = {}
+        download_path = tkFileDialog.askdirectory(**options)
+        print "pozvao je pocetak download-a " + str(folder_value) + " na lok " + download_path
 
     def add_folder_action(self):
         selected_files = []
