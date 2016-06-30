@@ -11,6 +11,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
         self.gauth = None
         self.drive = None
         self.access_token = ""
+        self.main_folder = None
 
     def authenticate(self):
 
@@ -19,6 +20,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
         self.drive = GoogleDrive(self.gauth)
 
         self.access_token = self.gauth.credentials.access_token
+        self._authentication_main_folder()
 
     def get_user_data(self):
         h = httplib2.Http()
@@ -37,29 +39,9 @@ class GoogleDriveAPI(AbstractDriveAPI):
         if not files:
             return
 
-        #provera main foldera
         h = httplib2.Http()
-        resp, content = h.request(
-            uri='https://www.googleapis.com/drive/v2/files?q=title+%3d+%27Secure-Cloud%27',
-            method='GET',
-            headers={'Authorization': 'Bearer ' + self.access_token}
-        )
-
-        data = json.loads(content)
-        folder_id = None
+        folder_id = self.main_folder
         subfolder_id = None
-
-        if not data['items']:
-            folder_id = self.create_folder()
-        else:
-            for d in data['items']:
-                if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['explicitlyTrashed']:
-                    folder_id = d['id']
-
-            if folder_id is None:
-                folder_id = self.create_folder()
-
-        self.main_folder = folder_id
 
         #provera subfoldera
         if folder_name is not None:
@@ -107,7 +89,8 @@ class GoogleDriveAPI(AbstractDriveAPI):
         data = json.loads(content)
         return data['id']
 
-    def list_folder_content(self, folder_id):
+    def list_subfolders(self):
+        folder_id = self.main_folder
         file_list = self.drive.ListFile({'q': "'" + str(
             folder_id) + "' in parents and trashed=false and mimeType='application/vnd.google-apps.folder'"}).GetList()
         for file1 in file_list:
@@ -122,3 +105,26 @@ class GoogleDriveAPI(AbstractDriveAPI):
             file2 = self.drive.CreateFile({'id': file1['id']})
             file2.GetContentFile(file1['title'])
 
+    def _authentication_main_folder(self):
+
+        h = httplib2.Http()
+        resp, content = h.request(
+            uri='https://www.googleapis.com/drive/v2/files?q=title+%3d+%27Secure-Cloud%27',
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
+
+        data = json.loads(content)
+        folder_id = None
+
+        if not data['items']:
+            folder_id = self.create_folder()
+        else:
+            for d in data['items']:
+                if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['explicitlyTrashed']:
+                    folder_id = d['id']
+
+            if folder_id is None:
+                folder_id = self.create_folder()
+
+        self.main_folder = folder_id

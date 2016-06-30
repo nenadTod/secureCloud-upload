@@ -56,7 +56,7 @@ class DropboxAPI(AbstractDriveAPI):
     def create_folder(self, name):
         pass
 
-    def list_folder_content(self, path='/Secure-Cloud'):
+    def list_subfolders(self, path='/Secure-Cloud'):
         folder_content = self.client.metadata(path)
 
         for con in folder_content['contents']:

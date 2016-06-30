@@ -10,6 +10,7 @@ class OneDriveAPI(AbstractDriveAPI):
     def __init__(self):
         self.client = None
         self.access_token = ""
+        self.main_folder = None
 
     def authenticate(self):
 
@@ -30,6 +31,8 @@ class OneDriveAPI(AbstractDriveAPI):
         self.client.auth_provider.authenticate(code, redirect_uri, client_secret)
         self.access_token = self.client.auth_provider._session.access_token
 
+        self.main_folder = self.create_folder("root", "Secure-Cloud")
+
     def get_user_data(self):
         h = httplib2.Http()
         resp, content = h.request(
@@ -46,20 +49,15 @@ class OneDriveAPI(AbstractDriveAPI):
         if not files:
             return
 
-        folder_id = self.create_folder("root", 'Secure-Cloud')
-        main_folder_id = folder_id
+        folder_id = self.main_folder
 
         if folder_name is not None:
-            subfolder_id = self.create_folder(folder_id, folder_name)
+            subfolder_id = self.create_folder(self.main_folder, folder_name)
             folder_id = subfolder_id
-
 
         for f in files:
             k = f.rfind("\\") + 1
             returned_item = self.client.item(drive="me", id=folder_id).children[f[k:]].upload(f)
-
-        self.list_folder_content(main_folder_id)
-        self.download_files(folder_id)
 
     def create_folder(self, parent, name):
 
@@ -71,9 +69,9 @@ class OneDriveAPI(AbstractDriveAPI):
         returned_item = self.client.item(drive="me", id=parent).children.add(i)
         return returned_item.id
 
-    def list_folder_content(self, folder_id):
+    def list_subfolders(self):
 
-        collection = self.client.item(drive="me", id=folder_id).children.get()
+        collection = self.client.item(drive="me", id=self.main_folder).children.get()
 
         for item in collection:
             if item.folder is not None:
@@ -87,3 +85,4 @@ class OneDriveAPI(AbstractDriveAPI):
             if item.file is not None:
                 self.client.item(drive="me", id=item.id).download("./" + item.name)
                 i += 1
+

@@ -19,3 +19,11 @@ class AbstractDriveAPI(object):
     @abstractmethod
     def create_folder(self, name, folder_name):
         pass
+
+    @abstractmethod
+    def list_subfolders(self):
+        pass
+
+    @abstractmethod
+    def download_files(self):
+        pass
