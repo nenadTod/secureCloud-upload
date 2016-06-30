@@ -1,6 +1,7 @@
 import os
 import tkFileDialog
 import tkMessageBox
+from download_gui import DownloadGui
 import shutil
 import json
 import bcrypt
@@ -51,6 +52,9 @@ class Controller:
                 full_file_path = full_file_path.replace("/", "\\")
                 selected_files.append(full_file_path)
             self.model.add_files_to_list(selected_files)
+
+    def open_download(self):
+        download_view = DownloadGui(["da"])
 
     def add_folder_action(self):
         selected_files = []

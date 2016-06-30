@@ -10,14 +10,6 @@ from django.core.serializers.xml_serializer import EntitiesForbidden
 class Gui:
 
     @property
-    def model(self):
-        return self.__model
-
-    @property
-    def controller(self):
-        return self.__controller
-
-    @property
     def files_list(self):
         return self.__files_list
 
@@ -37,10 +29,6 @@ class Gui:
     def print_selected(self):
         return self.__print_selected
 
-    @property
-    def path_type(self):
-        return self.__path_type
-
     encoding_value = 0
     drive_value = 0
     location_enabled = False
@@ -50,9 +38,10 @@ class Gui:
     _cloud_user_value="Pera9987"
 
     def __init__(self, root, controller, model):
-        self.__controller=controller
-        self.__model=model
-        self.__path_type=0
+        self.controller=controller
+        self.model=model
+        self.path_type=0
+        self.root = root
         self.create_window(root)
         self.create_status_bar(root)
         self.create_menu_bar(root)
@@ -118,6 +107,10 @@ class Gui:
         account_menu.add_command(label="Switch Cloud", command=lambda:self.controller.switch_account_action())
         account_menu.add_command(label="Change/Set Location", command=lambda: self.update_location())
         menu_bar.add_cascade(label="Account", menu=account_menu)
+
+        download_menu = Menu(menu_bar, tearoff=0)
+        download_menu.add_command(label="Download Gallery", command=lambda: self.controller.open_download())
+        menu_bar.add_cascade(label="Download", menu=download_menu)
 
         root.config(menu=menu_bar)
 
