@@ -54,7 +54,7 @@ class DropboxAPI(AbstractDriveAPI):
 
         return True
 
-    def create_folder(self, name):
+    def create_folder(self, parent, name):
         pass
 
     def list_subfolders(self, path='/Secure-Cloud'):

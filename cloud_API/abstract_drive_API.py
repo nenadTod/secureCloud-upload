@@ -13,7 +13,7 @@ class AbstractDriveAPI(object):
         pass
 
     @abstractmethod
-    def upload(self, files):
+    def upload(self, files, folder_name):
         pass
 
     @abstractmethod
@@ -25,5 +25,5 @@ class AbstractDriveAPI(object):
         pass
 
     @abstractmethod
-    def download_files(self):
+    def download_files(self, folder_id, download_path):
         pass
