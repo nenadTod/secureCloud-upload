@@ -1,3 +1,4 @@
+import tkMessageBox
 from Tkinter import *
 
 class DownloadGui:
@@ -8,6 +9,8 @@ class DownloadGui:
         self.galleries_dictionary=folders_dictionary
         self.galleries_list = folders_dictionary.keys()
         self.create_window()
+        if self.check_folders(folders_dictionary):
+            self.exit_action()
         self.create_body(self.galleries_list)
 
     def create_window(self):
@@ -54,3 +57,11 @@ class DownloadGui:
         value = self.galleries_dictionary[key]
         self.root.destroy()
         self.controller.download_action(value)
+
+    def check_folders(self, folders_dictionary):
+        if len(folders_dictionary) == 0:
+            tkMessageBox.showinfo("No Available Galleries","You have no galleries that could be downloaded!\n"
+                                "Please try with another account, or create gallery with this.")
+            return True
+        else:
+            return False
