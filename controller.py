@@ -3,6 +3,7 @@ import tkFileDialog
 import tkMessageBox
 import ntpath
 from setuptools.command import upload_docs
+from Crypto.Hash import SHA256
 
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
@@ -78,7 +79,7 @@ class Controller:
 
         sc = SCCrypto()
 
-        # r = requests.get('http://127.0.0.1:8000/api/trial')
+
 
         #temp_files
         #temp_dir = "/sc_temp"
@@ -127,9 +128,12 @@ class Controller:
             drive = DropboxAPI()
 
         drive.authenticate()
-        drive.get_user_data()
+        id = drive.get_user_data()
         drive.upload(file_list, upload_location)
 
+        hid = SHA256.new(id).hexdigest()
+        print hid
+        #r = requests.post('http://127.0.0.1:8000/api/trial/', json={"id": hid})
         """
         #proof, uncomment to se effects
         with open(file_list[0], 'r') as fhI:
