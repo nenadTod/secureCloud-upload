@@ -54,13 +54,23 @@ class Controller:
                 selected_files.append(full_file_path)
             self.model.add_files_to_list(selected_files)
 
-    def open_download(self):
-        download_view = DownloadGui(self, {'sape': 4139, 'guido': 4127, 'jack': 4098})
+    def open_download(self, selected_drive):
 
+        if selected_drive == 'Google Drive':
+            drive = GoogleDriveAPI()
+        elif selected_drive == 'One Drive':
+            drive = OneDriveAPI()
+        else:
+            drive = DropboxAPI()
+
+        drive.authenticate()
+        download_view = DownloadGui(self, drive.list_subfolders())
+        self._drive = drive
 
     def download_action(self, folder_value):
         options = {}
         download_path = tkFileDialog.askdirectory(**options)
+        self._drive.download_files(str(folder_value), download_path)
         print "pozvao je pocetak download-a " + str(folder_value) + " na lok " + download_path
 
     def register_user(self, email, password):
@@ -141,7 +151,6 @@ class Controller:
         drive.authenticate()
         id = drive.get_user_data()
         drive.upload(file_list, upload_location)
-        list = drive.list_subfolders()
 
         """ Komunikacija sa serverom
         hid = SHA256.new(id).hexdigest()
@@ -210,10 +219,9 @@ class Controller:
                         with open(location, 'wb') as fhO:
                             fhO.write(dec_pic_data_bin)
                     i += 1
-
+        """
         self.clear_all_action()
 
-"""
 
     def exit_action(self):
         print("exit")

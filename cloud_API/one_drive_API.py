@@ -79,11 +79,11 @@ class OneDriveAPI(AbstractDriveAPI):
 
         return ret
 
-    def download_files(self, folder_id):
+    def download_files(self, folder_id, download_path):
         folder = self.client.item(drive="me", id=folder_id).children.get()
         i = 0
         for item in folder:
             if item.file is not None:
-                self.client.item(drive="me", id=item.id).download("./" + item.name)
+                self.client.item(drive="me", id=item.id).download(download_path + "/" + item.name)
                 i += 1
 

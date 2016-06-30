@@ -109,7 +109,7 @@ class Gui:
         menu_bar.add_cascade(label="Account", menu=account_menu)
 
         download_menu = Menu(menu_bar, tearoff=0)
-        download_menu.add_command(label="Download Gallery", command=lambda: self.controller.open_download())
+        download_menu.add_command(label="Download Gallery", command=lambda: self.controller.open_download(Gui.drive_value.get()))
         menu_bar.add_cascade(label="Download", menu=download_menu)
 
         root.config(menu=menu_bar)
@@ -179,7 +179,7 @@ class Gui:
         self.files_list = Listbox(frame_files_panel,height=1500, yscrollcommand=files_list_scroll.set, selectmode=EXTENDED)
         self.files_list.pack(side=LEFT, fill=BOTH, padx=(10,0), expand=1)
         self.files_list.bind("<<ListboxSelect>>",self.selection_list)
-        self.files_list.insert(END, "(no files choosen)")
+        self.files_list.insert(END, "(No files chosen)")
         files_list_scroll.config(command=self.files_list.yview)
 
         addfile = ImageTk.PhotoImage(file="images/addfile.png")

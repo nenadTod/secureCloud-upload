@@ -98,14 +98,14 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
         return ret
 
-    def download_files(self, folder_id):
+    def download_files(self, folder_id, download_path):
 
         file_list = self.drive.ListFile({'q': "'" + str(
             folder_id) + "' in parents and trashed=false"}).GetList()
 
         for file1 in file_list:
             file2 = self.drive.CreateFile({'id': file1['id']})
-            file2.GetContentFile(file1['title'])
+            file2.GetContentFile(download_path + '/' + file1['title'])
 
     def _authentication_main_folder(self):
 

@@ -65,7 +65,7 @@ class DropboxAPI(AbstractDriveAPI):
 
         return ret
 
-    def download_files(self, path):
+    def download_files(self, path, download_path):
         folder_content = self.client.metadata(path)
 
         fs = open('berlin.txt', 'rb')
