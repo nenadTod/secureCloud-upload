@@ -7,7 +7,7 @@ root = Tk()
 model = Model()
 control = Controller(root, model)
 view = Gui(root, control, model)
-model.set_view(view)
+model.view = view
 
 root.mainloop()
 
