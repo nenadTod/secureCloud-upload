@@ -127,7 +127,6 @@ class Controller:
         drive.authenticate()
         id = drive.get_user_data()
         drive.upload(file_list, upload_location)
-        list = drive.list_subfolders()
 
         """ Komunikacija sa serverom
         hid = SHA256.new(id).hexdigest()
@@ -196,10 +195,9 @@ class Controller:
                         with open(location, 'wb') as fhO:
                             fhO.write(dec_pic_data_bin)
                     i += 1
-
+        """
         self.clear_all_action()
 
-"""
 
     def exit_action(self):
         print("exit")
