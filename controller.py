@@ -1,7 +1,6 @@
 import os
 import tkFileDialog
 import tkMessageBox
-from download_gui import DownloadGui
 import shutil
 import json
 import bcrypt
@@ -9,6 +8,8 @@ import ntpath
 from setuptools.command import upload_docs
 from Crypto.Hash import SHA256
 
+from download_gui import DownloadGui
+from uc_register_gui import UCRegister
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
@@ -61,6 +62,9 @@ class Controller:
         options = {}
         download_path = tkFileDialog.askdirectory(**options)
         print "pozvao je pocetak download-a " + str(folder_value) + " na lok " + download_path
+
+    def register_user(self, email, password):
+        print "pozvao je pocetak download-a " + email + " na lok " + password
 
     def add_folder_action(self):
         selected_files = []

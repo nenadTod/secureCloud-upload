@@ -43,8 +43,8 @@ class DownloadGui:
         cloud_value.grid(row=1, column=1, pady=(25,5))
 
         frame_buttons.grid(row=2, column=0, sticky=E, columnspan=2, pady=(25,15))
-        button_ok.pack(side=RIGHT,anchor=E, padx=8)
-        button_cancel.pack(side=RIGHT,anchor=E, padx=8)
+        button_ok.pack(side=RIGHT, anchor=E, padx=8)
+        button_cancel.pack(side=RIGHT, anchor=E, padx=8)
 
     def exit_action(self):
         self.root.destroy()

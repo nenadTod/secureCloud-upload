@@ -283,7 +283,7 @@ class Gui:
                 Gui.location_enabled = False
                 Gui.button_location.configure(text="Change Location")
             else:
-                tkMessageBox.showinfo("Wrong Location Name", "Location name can contain only:\n"
+                tkMessageBox.showerror("Wrong Location Name", "Location name can contain only:\n"
                                     "Letters, Numbers, Underscores and/or Dashes!\nPlease retype location!")
         else:
             Gui.label_location_value.configure(state='normal')
@@ -292,6 +292,6 @@ class Gui:
 
     def check_start_action(self):
         if (Gui.location_enabled):
-            tkMessageBox.showinfo("Missing Location Name","Please confirm upload location\nand then try again!")
+            tkMessageBox.showerror("Missing Location Name","Please confirm upload location\nand then try again!")
         else:
             self.create_start_action()
