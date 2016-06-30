@@ -68,9 +68,7 @@ class Controller:
             self._drive = drive
             download_view = DownloadGui(self.view.root, self, drive.list_subfolders())
 
-    def download_action(self, folder_value):
-        options = {}
-        download_path = tkFileDialog.askdirectory(**options)
+    def download_action(self, folder_value, download_path):
         end = self._drive.download_files(str(folder_value), download_path)
         if end is True:
             tkMessageBox.showinfo(title="Download success", message="Files downloaded successfully.")
