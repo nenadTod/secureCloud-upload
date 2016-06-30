@@ -1,7 +1,6 @@
 import os
 import tkFileDialog
 import tkMessageBox
-from download_gui import DownloadGui
 import shutil
 import json
 import bcrypt
@@ -9,6 +8,8 @@ import ntpath
 from setuptools.command import upload_docs
 from Crypto.Hash import SHA256
 
+from download_gui import DownloadGui
+from uc_register_gui import UCRegister
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
@@ -23,19 +24,12 @@ from SCCrypto import SCCrypto
 
 class Controller:
 
-    @property
-    def model(self):
-        return self.__model
-
-    @property
-    def root(self):
-        return self.__root
-
-    def __init__(self, root, model):
-        self.__model=model
-        self.__root=root
+    def __init__(self, model):
+        self.model=model
+        self.view=""
 
     def switch_account_action(self):
+        uc_register = UCRegister(self.view.root, self)
         print("switch account")
 
     def add_file_action(self):
@@ -63,8 +57,13 @@ class Controller:
             drive = DropboxAPI()
 
         drive.authenticate()
-        download_view = DownloadGui(self, drive.list_subfolders())
-        self._drive = drive
+
+        if len(drive.list_subfolders()) == 0:
+            tkMessageBox.showinfo("No Available Galleries", "You have no galleries that could be downloaded!\n"
+                                                            "Please try with another account, or create gallery within this.")
+        else:
+            download_view = DownloadGui(self.view.root, self, drive.list_subfolders())
+            self._drive = drive
 
     def download_action(self, folder_value):
         options = {}
@@ -72,6 +71,9 @@ class Controller:
         end = self._drive.download_files(str(folder_value), download_path)
         if end is True:
             tkMessageBox.showinfo(title="Download success", message="Files downloaded successfully.")
+
+    def register_user(self, email, password):
+        print "pozvao je pocetak download-a " + email + " na lok " + password
 
     def add_folder_action(self):
         selected_files = []
@@ -223,4 +225,4 @@ class Controller:
 
     def exit_action(self):
         if tkMessageBox.askokcancel("Quit?", "Are you sure you want to quit?"):
-            self.root.destroy()
+            self.view.root.destroy()

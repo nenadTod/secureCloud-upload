@@ -1,25 +1,31 @@
+import tkMessageBox
 from Tkinter import *
 
-class DownloadGui:
+class DownloadGui(Toplevel):
 
-    def __init__(self, controller, folders_dictionary):
-        self.root=Tk()
-        self.controller=controller
-        self.galleries_dictionary=folders_dictionary
-        self.galleries_list = folders_dictionary.keys()
+    def __init__(self, parent, controller, folders_dictionary):
+        Toplevel.__init__(self, parent)
+        self.controller = controller
+        self.transient(parent)
+        self.parent = parent
+        body = Frame(self)
         self.create_window()
-        self.create_body(self.galleries_list)
+        self.galleries_dictionary = folders_dictionary
+        self.galleries_list = folders_dictionary.keys()
+        self.create_body(body, self.galleries_list)
+        body.pack()
+        self.wait_window(self)
 
     def create_window(self):
-        self.root.grab_set_global()
-        self.root.title("Download Gallery")
-        self.root.geometry("340x190")
-        self.root.resizable(width=False, height=False)
-        self.root.iconbitmap('images/icon.ico')
-        self.root.protocol('WM_DELETE_WINDOW', lambda: self.exit_action())
+        self.grab_set()
+        self.title("Download Gallery")
+        self.geometry("340x190")
+        self.resizable(width=False, height=False)
+        self.iconbitmap('images/icon.ico')
+        self.protocol('WM_DELETE_WINDOW', lambda: self.exit_action())
 
-    def create_body(self, folders_list):
-        frame = LabelFrame(self.root, text="Download Gallery:")
+    def create_body(self, body, folders_list):
+        frame = LabelFrame(body, text="Download Gallery:")
         frame.pack(side=TOP, fill=BOTH, pady=5, padx=5)
         frame_buttons = Frame(frame)
 
@@ -43,14 +49,14 @@ class DownloadGui:
         cloud_value.grid(row=1, column=1, pady=(25,5))
 
         frame_buttons.grid(row=2, column=0, sticky=E, columnspan=2, pady=(25,15))
-        button_ok.pack(side=RIGHT,anchor=E, padx=8)
-        button_cancel.pack(side=RIGHT,anchor=E, padx=8)
+        button_ok.pack(side=RIGHT, anchor=E, padx=8)
+        button_cancel.pack(side=RIGHT, anchor=E, padx=8)
 
     def exit_action(self):
-        self.root.destroy()
+        self.destroy()
 
     def prepare_download(self, gallery_chosen):
         key = gallery_chosen.get()
         value = self.galleries_dictionary[key]
-        self.root.destroy()
+        self.destroy()
         self.controller.download_action(value)
