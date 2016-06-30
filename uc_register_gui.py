@@ -3,30 +3,36 @@ import tkMessageBox
 
 ###     UPUTSTVO
 #
-# POZIVAS SA: uc_register = UCRegister(self)
+# POZIVAS SA: uc_register = UCRegister(self.view.root, self)
+# self.view.root je referenca na parenta - glavni gui, a
 # self je referenca na glavni kontroler u aplikaciji
 # kadje sve kako treba poziva metodu register_user() iz kontrolera,
 # prosledi joj potrebne parametre i iskljuci se
 
 
-class UCRegister:
+class UCRegister(Toplevel):
 
-    def __init__(self, controller):
-        self.root=Tk()
+    def __init__(self, parent, controller):
+        Toplevel.__init__(self, parent)
         self.controller = controller
-        self.create_window()
-        self.create_body()
         self.email_value = None
+        self.transient(parent)
+        self.parent = parent
+        body = Frame(self)
+        self.create_window()
+        self.create_body(body)
+        body.pack()
+        self.wait_window(self)
 
     def create_window(self):
-        #self.root.grab_set_global()
-        self.root.title("Register User-Cloud")
-        self.root.geometry("320x227")
-        self.root.resizable(width=False, height=False)
-        self.root.iconbitmap('images/icon.ico')
+        self.grab_set()
+        self.title("Register User-Cloud")
+        self.geometry("320x227")
+        self.resizable(width=False, height=False)
+        self.iconbitmap('images/icon.ico')
 
-    def create_body(self):
-        frame = LabelFrame(self.root, text="Register User-Cloud:")
+    def create_body(self, body):
+        frame = LabelFrame(body, text="Register User-Cloud:")
         frame.pack(side=TOP, fill=BOTH, pady=5, padx=5)
         frame_buttons = Frame(frame)
 
@@ -39,8 +45,8 @@ class UCRegister:
         email_value = Entry(frame, width=30)
         pass1_value = Entry(frame, width=30)
         pass2_value = Entry(frame, width=30)
-        pass1_value.config(show=u"\u25CF");
-        pass2_value.config(show=u"\u25CF");
+        pass1_value.config(show=u"\u25CF")
+        pass2_value.config(show=u"\u25CF")
 
         button_ok = Button(frame_buttons, text="Register", width=17, height=1,command=lambda: self.prepare_register(email_value.get(), pass1_value.get(), pass2_value.get()))
         button_cancel = Button(frame_buttons, text="Cancel", width=12, height=1, command=lambda: self.exit_action())
@@ -60,7 +66,7 @@ class UCRegister:
 
 
     def exit_action(self):
-        self.root.destroy()
+        self.destroy()
 
     def prepare_register(self, email, pass1, pass2):
         if email == "" or pass1 == "" or pass2 == "":
@@ -69,5 +75,5 @@ class UCRegister:
         if pass1 != pass2:
             tkMessageBox.showerror("Passwords Mismatching", "Entered passwords are not equal!\nPlease enter same values.")
             return
-        self.root.destroy()
+        self.destroy()
         self.controller.register_user(email, pass1)
