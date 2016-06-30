@@ -109,7 +109,7 @@ class Gui:
         menu_bar.add_cascade(label="Account", menu=account_menu)
 
         download_menu = Menu(menu_bar, tearoff=0)
-        download_menu.add_command(label="Download Gallery", command=lambda: self.controller.open_download())
+        download_menu.add_command(label="Download Gallery", command=lambda: self.controller.open_download(Gui.drive_value.get()))
         menu_bar.add_cascade(label="Download", menu=download_menu)
 
         root.config(menu=menu_bar)
