@@ -69,8 +69,9 @@ class Controller:
     def download_action(self, folder_value):
         options = {}
         download_path = tkFileDialog.askdirectory(**options)
-        self._drive.download_files(str(folder_value), download_path)
-        print "pozvao je pocetak download-a " + str(folder_value) + " na lok " + download_path
+        end = self._drive.download_files(str(folder_value), download_path)
+        if end is True:
+            tkMessageBox.showinfo(title="Download success", message="Files downloaded successfully.")
 
     def add_folder_action(self):
         selected_files = []
@@ -218,8 +219,8 @@ class Controller:
         """
         self.clear_all_action()
 
+        tkMessageBox.showinfo(title="Upload success", message="Files uploaded successfully.")
 
     def exit_action(self):
-        print("exit")
         if tkMessageBox.askokcancel("Quit?", "Are you sure you want to quit?"):
             self.root.destroy()

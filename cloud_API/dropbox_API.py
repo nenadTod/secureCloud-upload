@@ -52,6 +52,8 @@ class DropboxAPI(AbstractDriveAPI):
             k = f.rfind("\\") + 1
             self.client.put_file(destination + f[k:], dropbox_file)
 
+        return True
+
     def create_folder(self, name):
         pass
 

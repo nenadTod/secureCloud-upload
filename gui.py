@@ -35,8 +35,6 @@ class Gui:
     label_location_value = 0
     button_location = 0
 
-    _cloud_user_value="Pera9987"
-
     def __init__(self, root, controller, model):
         self.controller=controller
         self.model=model
@@ -99,8 +97,8 @@ class Gui:
         menu_bar.add_cascade(label="View", menu=view_menu)
 
         action_menu = Menu(menu_bar, tearoff=0)
-        action_menu.add_command(label="Encrypt And Upload", command=lambda:self.check_start_action())
-        action_menu.add_command(label="Cancel All", command=lambda:self.controller.cancel_all_action())
+        action_menu.add_command(label="Encrypt and Upload", command=lambda: self.check_start_action())
+        action_menu.add_command(label="Cancel All", command=lambda: self.controller.cancel_all_action())
         menu_bar.add_cascade(label="Action", menu=action_menu)
 
         account_menu = Menu(menu_bar, tearoff=0)
@@ -140,29 +138,22 @@ class Gui:
         Gui.drive_value.set("Google Drive")
 
         label_cloud = Label(frame_cloud_data, anchor=W, text="Cloud name: ")
-        label_user = Label(frame_cloud_data, anchor=W, text="User name: ")
-        label_location = Label(frame_cloud_data, anchor=W, text="Upload location: ")
+        label_location = Label(frame_cloud_data, anchor=W, text="Upload folder: ")
         label_cloud_value = OptionMenu(frame_cloud_data, Gui.drive_value, "Google Drive", "Dropbox", "One Drive")
-        label_user_value = Label(frame_cloud_data, anchor=W, textvariable=cloud_user)
-        Gui.label_location_value = Entry(frame_cloud_data, text="secure-clouding", width=40)
-        Gui.label_location_value.insert(10,"secure-clouding")
+        Gui.label_location_value = Entry(frame_cloud_data, text="Secure-Cloud", width=40)
+        Gui.label_location_value.insert(10,"Secure-Cloud")
         Gui.label_location_value.configure(state='readonly')
 
-        value_user = self._cloud_user_value
-        cloud_user.set(value_user)
-
         button_switch = Button(frame_cloud_buttons, text="Switch Cloud", width=12, height=1)
-        Gui.button_location = Button(frame_cloud_buttons, text="Change Location", width=12, height=1, command=lambda:self.update_location())
+        Gui.button_location = Button(frame_cloud_buttons, text="Change folder", width=12, height=1, command=lambda:self.update_location())
 
         label_cloud.grid(row=0, column=0, pady=(0,0), padx=5, sticky=W)
-        label_user.grid(row=1, column=0, pady=3, padx=5, sticky=W)
-        label_location.grid(row=2, column=0, pady=(6,10), padx=5, sticky=W)
+        label_location.grid(row=1, column=0, pady=(6, 10), padx=5, sticky=W)
         label_cloud_value.grid(row=0, column=1, pady=0, padx=0, sticky=W)
-        label_user_value.grid(row=1, column=1, pady=3, padx=0, sticky=W)
-        Gui.label_location_value.grid(row=2, column=1, pady=(6,10), padx=0, sticky=W)
+        Gui.label_location_value.grid(row=1, column=1, pady=(6,10), padx=0, sticky=W)
 
-        #button_switch.pack(side=BOTTOM, pady=(26,1), padx=10)
-        #button_location.pack(side=BOTTOM, pady=(1,10), padx=10)
+        # button_switch.pack(side=BOTTOM, pady=(26,1), padx=10)
+        # button_location.pack(side=BOTTOM, pady=(1,10), padx=10)
         Gui.button_location.pack(side=BOTTOM, pady=(30, 8), padx=10)
 
         return frame_cloud
@@ -207,17 +198,17 @@ class Gui:
         frame_action_up = Frame(frame_action)
         frame_action_down = Frame(frame_action)
 
-        label_crypto = Label(frame_action_up, anchor=W, text="Nacin kriptovanja: ")
-        #label_process = Label(frame_action, width=15, textvariable=print_connection, relief=RIDGE)
+        label_crypto = Label(frame_action_up, anchor=W, text="Encryption type: ")
+        # label_process = Label(frame_action, width=15, textvariable=print_connection, relief=RIDGE)
         label_process = Label(frame_action_down, anchor=W, text="Encrypting and uploading.....uploadinguploadinguploadinguploadinguploading")
 
         Gui.encoding_value = IntVar()
-        radiobutton1 = Radiobutton(frame_action_up, text="One", variable=Gui.encoding_value, value=1)
-        radiobutton2 = Radiobutton(frame_action_up, text="Two", variable=Gui.encoding_value, value=2)
+        radiobutton1 = Radiobutton(frame_action_up, text="For self", variable=Gui.encoding_value, value=1)
+        radiobutton2 = Radiobutton(frame_action_up, text="For sharing", variable=Gui.encoding_value, value=2)
         Gui.encoding_value.set(1)
 
-        button_cancel = Button(frame_action_down, text="Cancel", width=6, height=1, command=lambda:self.controller.cancel_all_action())
-        button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda:self.check_start_action())
+        button_download = Button(frame_action_down, text="Download and Decrypt", width=18, height=1, command=lambda: self.controller.open_download(Gui.drive_value.get()))
+        button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda: self.check_start_action())
 
         frame_action_up.pack(anchor=W)
         frame_action_down.pack(anchor=E)
@@ -225,7 +216,7 @@ class Gui:
         radiobutton1.pack(side=LEFT)
         radiobutton2.pack(side=LEFT)
         button_start.pack(side=RIGHT, pady=(5, 10), padx=(10, 10))
-        button_cancel.pack(side=RIGHT, pady=(5, 10), padx=5)
+        button_download.pack(side=LEFT, pady=(5, 10), padx=5)
         #label_process.pack(side=LEFT, expand=100, pady=(5,10), padx=5)
         return frame_action
 
@@ -281,17 +272,17 @@ class Gui:
             if pattern.match(location):
                 Gui.label_location_value.configure(state='readonly')
                 Gui.location_enabled = False
-                Gui.button_location.configure(text="Change Location")
+                Gui.button_location.configure(text="Change Folder")
             else:
-                tkMessageBox.showinfo("Wrong Location Name", "Location name can contain only:\n"
-                                    "Letters, Numbers, Underscores and/or Dashes!\nPlease retype location!")
+                tkMessageBox.showinfo("Wrong Folder Name", "Folder name can contain only:\n"
+                                    "Letters, Numbers, Underscores and/or Dashes!\nPlease retype folder name!")
         else:
             Gui.label_location_value.configure(state='normal')
             Gui.location_enabled = True
-            Gui.button_location.configure(text="Set Location")
+            Gui.button_location.configure(text="Set folder")
 
     def check_start_action(self):
         if (Gui.location_enabled):
-            tkMessageBox.showinfo("Missing Location Name","Please confirm upload location\nand then try again!")
+            tkMessageBox.showinfo("Missing Folder Name","Please confirm upload folder\nand then try again!")
         else:
             self.create_start_action()

@@ -87,3 +87,5 @@ class OneDriveAPI(AbstractDriveAPI):
                 self.client.item(drive="me", id=item.id).download(download_path + "/" + item.name)
                 i += 1
 
+        return True
+
