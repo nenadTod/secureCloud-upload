@@ -56,14 +56,17 @@ class Controller:
         else:
             drive = DropboxAPI()
 
-        drive.authenticate()
+        try:
+            drive.authenticate()
+        except:
+            tkMessageBox.showinfo(title="Rejection", message="Authorization rejected by user.")
 
         if len(drive.list_subfolders()) == 0:
             tkMessageBox.showinfo("No Available Galleries", "You have no galleries that could be downloaded!\n"
                                                             "Please try with another account, or create gallery within this.")
         else:
-            download_view = DownloadGui(self.view.root, self, drive.list_subfolders())
             self._drive = drive
+            download_view = DownloadGui(self.view.root, self, drive.list_subfolders())
 
     def download_action(self, folder_value):
         options = {}
@@ -147,7 +150,10 @@ class Controller:
         else:
             drive = DropboxAPI()
 
-        drive.authenticate()
+        try:
+            drive.authenticate()
+        except:
+            tkMessageBox.showinfo(title="Rejection", message="Authorization rejected by user.")
         id = drive.get_user_data()
         drive.upload(file_list, upload_location)
 
