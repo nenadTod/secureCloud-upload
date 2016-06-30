@@ -59,6 +59,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
             if folder_id is None:
                 folder_id = self.create_folder()
 
+        self.main_folder = folder_id
 
         #provera subfoldera
         if folder_name is not None:
@@ -85,7 +86,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
         for f in files:
             k = f.rfind("\\") + 1
-            file1 = self.drive.CreateFile({'title': f[k:], "parents": [{"kind": "drive#fileLink","id": folder_id}]})
+            file1 = self.drive.CreateFile({'title': f[k:], "parents": [{"kind": "drive#fileLink", "id": folder_id}]})
             file1.SetContentFile(f)
             file1.Upload()
 
@@ -105,4 +106,19 @@ class GoogleDriveAPI(AbstractDriveAPI):
         )
         data = json.loads(content)
         return data['id']
+
+    def list_folder_content(self, folder_id):
+        file_list = self.drive.ListFile({'q': "'" + str(
+            folder_id) + "' in parents and trashed=false and mimeType='application/vnd.google-apps.folder'"}).GetList()
+        for file1 in file_list:
+            print 'title: %s, id: %s' % (file1['title'], file1['id'])
+
+    def download_files(self, folder_id):
+
+        file_list = self.drive.ListFile({'q': "'" + str(
+            folder_id) + "' in parents and trashed=false"}).GetList()
+
+        for file1 in file_list:
+            file2 = self.drive.CreateFile({'id': file1['id']})
+            file2.GetContentFile(file1['title'])
 
