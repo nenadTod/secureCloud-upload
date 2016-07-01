@@ -116,7 +116,7 @@ class Controller:
             return
 
         sce = SCEncryptor()
-        sce.encryptShared(self.model.opened_files, drive, upload_location)
+        sce.encryptLocal(self.model.opened_files, drive, upload_location)
 
         """ funkcija bi trebala ovo sve da zameni :)
         #temp_files
