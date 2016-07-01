@@ -1,6 +1,6 @@
 #klasa u kojoj su eksperimenti
 
-from SCCrypto import SCCrypto
+from SCCryptoUtil import SCCrypto
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
 

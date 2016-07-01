@@ -13,13 +13,15 @@ from uc_register_gui import UCRegister
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
+from SCEncryptor import SCEncryptor
+
 from Crypto.PublicKey import RSA
 import requests
 from Crypto.Cipher import AES
 import binascii
 
 
-from SCCrypto import SCCrypto
+from SCCryptoUtil import SCCrypto
 
 
 class Controller:
@@ -100,47 +102,6 @@ class Controller:
 
     def start_action(self, selected_drive, encryption_type, upload_location):
 
-        sc = SCCrypto()
-
-        #temp_files
-        temp_dir = "/sc_temp" #OVO ZAKOMENTARISI KADA BUDES SA ONIM DOLE :)
-        #temp_dir = "/sc_mock" + "/sc_temp"
-        if not os.path.exists(temp_dir):
-            os.makedirs(temp_dir)
-
-        """
-        file_list = []
-        for f in self.model.opened_files:
-            with open(f, 'rb') as fhI:
-                file_name = ntpath.split(f)[1]
-                file_path = temp_dir + "/" + file_name
-                pic_data = fhI.read()
-
-                #encryption - bice zamenjene random vrendostima, naravno :)
-                aes = AES.new("askldsjkuierocme", AES.MODE_CFB, 'asdfghjkqwertyui')
-                enc_pic_data = aes.encrypt(pic_data)
-                enc_pic_data_hex = sc.bin2hex(enc_pic_data)#ovo ti mozda i ne treba, zbog cuvanja mesta.. madaa?
-
-                with open(file_path, 'w') as fhO:
-                    fhO.write(enc_pic_data_hex)
-
-                abs_file_path = os.path.abspath(file_path)
-                file_list.append(abs_file_path)
-        """
-        mock_key = RSA.generate(2048)#OBAVEZNO IZBRISI OVO POSLE.
-        retVal = sc.encrypt_images(temp_dir, self.model.opened_files, mock_key)
-        file_list = retVal[0]
-        enc_sim_key = retVal[1]
-        iv_list = retVal[2]
-        # mozda i abstraktna klasa? Ja bih rekao da da:P
-
-        with open("/sc_mock/sc_temp/meta.txt", 'w') as fhO:
-            fhO.write(enc_sim_key + "\n")
-            i = 0
-            for f in file_list:
-                fhO.write(f + " " + str(iv_list[i]) + "\n")
-                i += 1
-
         if selected_drive == 'Google Drive':
             drive = GoogleDriveAPI()
         elif selected_drive == 'One Drive':
@@ -152,13 +113,45 @@ class Controller:
             drive.authenticate()
         except:
             tkMessageBox.showinfo(title="Rejection", message="Authorization rejected by user.")
+            return
+
+        sce = SCEncryptor()
+        sce.encryptShared(self.model.opened_files, drive, upload_location)
+
+        """ funkcija bi trebala ovo sve da zameni :)
+        #temp_files
+        temp_dir = "sc_temp" #OVO ZAKOMENTARISI KADA BUDES SA ONIM DOLE :)
+        #temp_dir = "/sc_mock" + "/sc_temp"
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
+        sc = SCCrypto()
+        mock_key = RSA.generate(2048)#OBAVEZNO IZBRISI OVO POSLE.
+        retVal = sc.encrypt_images(temp_dir, self.model.opened_files, mock_key)
+        file_list = retVal[0]
+        enc_sim_key = retVal[1]
+        iv_list = retVal[2]
+
+
+
+
         id = drive.get_user_data()
 
-        file_id = drive.get_meta_file(upload_location, 2)
+        file_id = drive.get_meta_file(upload_location, 1)
         ##### OVDE BARATAS SA FAJLOM!!! ######
 
-        drive.update_meta_file(file_id, 2)
+        with open("meta1-en.txt", 'a') as fhO:
+            fhO.write(enc_sim_key + "\n")
+            i = 0
+            for f in file_list:
+                fhO.write(ntpath.split(f)[1] + " " + str(iv_list[i]) + "\n")
+                i += 1
+
+        drive.update_meta_file(file_id, 1)
         drive.upload(file_list, upload_location)
+        """
+
+
 
         """ Komunikacija sa serverom
         hid = SHA256.new(id).hexdigest()
@@ -178,7 +171,7 @@ class Controller:
         """
 
 
-        shutil.rmtree(temp_dir)
+        #  shutil.rmtree(temp_dir)
         #sve ispod je eksperimentalnog karaktera :D
 
         #mock_files
