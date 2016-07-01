@@ -115,11 +115,9 @@ class Controller:
             tkMessageBox.showinfo(title="Rejection", message="Authorization rejected by user.")
             return
 
-        file_id = drive.get_meta_file('root', 1)
-        drive.update_meta_file(file_id, 1)
 
         sce = SCEncryptor()
-        sce.encryptLocal(self.model.opened_files, drive, upload_location)
+        sce.encryptShared(self.model.opened_files, drive, upload_location)
 
         """ funkcija bi trebala ovo sve da zameni :)
         #temp_files

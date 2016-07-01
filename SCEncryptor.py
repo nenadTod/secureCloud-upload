@@ -65,6 +65,13 @@ class SCEncryptor:
             drive.update_meta_file(file_id, self.meta1DEnum)
             os.remove(self.meta1D)
 
+            file_id = drive.get_meta_file("root", self.meta1DEnum)
+            with open(self.meta1D, 'w') as fhO:
+                fhO.write(xord[1])
+
+            drive.update_meta_file(file_id, self.meta1DEnum)
+            os.remove(self.meta1D)
+
         self._do_the_job(self.meta1E, self.meta1EEnum, file_list, key, upload_location, drive)
 
 
@@ -91,7 +98,23 @@ class SCEncryptor:
             pub_key = dct[0]['PK']
             key = RSA.importKey(pub_key)
 
-            #  implementiraj i cuvanje dela kljuca u secure - folderu, i u folderu pojedinacno.
+            prKPart = dct[0]['PrKPart']
+
+            # save key part in a file located in the root folder
+            file_id = drive.get_meta_file("root", self.meta2DEnum)
+            with open(self.meta2D, 'w') as fhO:
+                fhO.write(prKPart)
+
+            drive.update_meta_file(file_id, self.meta2DEnum)
+            os.remove(self.meta2D)
+
+            # save key part in a file located in the upload folder
+            file_id = drive.get_meta_file(upload_location, self.meta2DEnum)
+            with open(self.meta2D, 'w') as fhO:
+                fhO.write(prKPart)
+
+            drive.update_meta_file(file_id, self.meta2DEnum)
+            os.remove(self.meta2D)
 
         else:
             psw = "hassan"#оve vrednosti ce se preuzimati sa forme.
@@ -111,11 +134,20 @@ class SCEncryptor:
             pub_key = dct[0]['PK']
             key = RSA.importKey(pub_key)
 
-            # smestanje dela kljuca za decrypt, malo posle ces odraditi :)
-            # file_id = drive.get_meta_file(upload_location, self.meta2DEnum)
+            # get a file with part of the private key located in the root folder
+            drive.get_meta_file("root", self.meta2DEnum)
+            with open(self.meta2D, 'r') as fhO:
+                prKPart = fhO.read()
 
-            # if os.stat(self.meta2DEnum).st_size == 0:
-            # ostaje za sad nedoreceno, jbg.. mozes upload i bez toga, samo se seti da odradis :D
+            os.remove(self.meta2D)
+
+            # save that part of the private key in a meta file located in the upload folder
+            file_id = drive.get_meta_file(upload_location, self.meta2DEnum)
+            with open(self.meta2D, 'w') as fhO:
+                fhO.write(prKPart)
+
+            drive.update_meta_file(file_id, self.meta2DEnum)
+            os.remove(self.meta2D)
 
         self._do_the_job(self.meta2E, self.meta2EEnum, file_list, key, upload_location, drive)
 
