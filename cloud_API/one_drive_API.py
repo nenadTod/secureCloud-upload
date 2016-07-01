@@ -117,7 +117,7 @@ class OneDriveAPI(AbstractDriveAPI):
 
         if folder_name == 'root':
             subfolder_id = self.main_folder
-        if folder_name is not None:
+        elif folder_name is not None:
             subfolder_id = self.create_folder(self.main_folder, folder_name)
 
         folder = self.client.item(drive="me", id=subfolder_id).children.get()
