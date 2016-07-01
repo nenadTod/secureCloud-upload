@@ -140,8 +140,8 @@ class Gui:
         label_cloud = Label(frame_cloud_data, anchor=W, text="Cloud name: ")
         label_location = Label(frame_cloud_data, anchor=W, text="Upload folder: ")
         label_cloud_value = OptionMenu(frame_cloud_data, Gui.drive_value, "Google Drive", "Dropbox", "One Drive")
-        Gui.label_location_value = Entry(frame_cloud_data, text="Secure-Cloud", width=40)
-        Gui.label_location_value.insert(10,"Secure-Cloud")
+        Gui.label_location_value = Entry(frame_cloud_data, text="Secure-Folder", width=40)
+        Gui.label_location_value.insert(10,"Secure-Folder")
         Gui.label_location_value.configure(state='readonly')
 
         button_switch = Button(frame_cloud_buttons, text="Switch Cloud", width=12, height=1)

@@ -1,6 +1,7 @@
 import onedrivesdk
 import httplib2
 import json
+import os
 from abstract_drive_API import AbstractDriveAPI
 from onedrivesdk.helpers import GetAuthCodeServer
 
@@ -66,6 +67,19 @@ class OneDriveAPI(AbstractDriveAPI):
         i.folder = f
 
         returned_item = self.client.item(drive="me", id=parent).children.add(i)
+
+        collection = self.client.item(drive="me", id=returned_item.id).children.get()
+
+        if not collection._prop_list:
+            f = open('empty.txt', 'a').close()
+
+            self.client.item(drive="me", id=returned_item.id).children['meta1-en.txt'].upload('empty.txt')
+            self.client.item(drive="me", id=returned_item.id).children['meta1-de.txt'].upload('empty.txt')
+            self.client.item(drive="me", id=returned_item.id).children['meta2-en.txt'].upload('empty.txt')
+            self.client.item(drive="me", id=returned_item.id).children['meta2-de.txt'].upload('empty.txt')
+
+            os.remove('empty.txt')
+
         return returned_item.id
 
     def list_subfolders(self):
@@ -88,4 +102,49 @@ class OneDriveAPI(AbstractDriveAPI):
                 i += 1
 
         return True
+
+    def get_meta_file(self, folder_name, meta_type):
+        if meta_type == 1:
+            name = 'meta1-en.txt'
+        elif meta_type == 2:
+            name = 'meta1-de.txt'
+        elif meta_type == 3:
+            name = 'meta2-en.txt'
+        elif meta_type == 4:
+            name = 'meta2-de.txt'
+        else:
+            return None
+
+        if folder_name is not None:
+            subfolder_id = self.create_folder(self.main_folder, folder_name)
+
+        folder = self.client.item(drive="me", id=subfolder_id).children.get()
+
+        for item in folder:
+            if item.file is not None and item.name == name:
+                self.client.item(drive="me", id=item.id).download(item.name)
+                return item.id
+
+    def update_meta_file(self, file_id, meta_type):
+
+        if meta_type == 1:
+            name = 'meta1-en.txt'
+        elif meta_type == 2:
+            name = 'meta1-de.txt'
+        elif meta_type == 3:
+            name = 'meta2-en.txt'
+        elif meta_type == 4:
+            name = 'meta2-de.txt'
+        else:
+            return None
+
+        item = self.client.item(drive="me", id=file_id).get()
+        parent_id = item.parent_reference.id
+
+        returned_item = self.client.item(drive="me", id=parent_id).children[name].upload(name)
+
+
+
+
+
 
