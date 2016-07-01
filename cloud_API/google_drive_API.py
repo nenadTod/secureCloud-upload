@@ -163,6 +163,9 @@ class GoogleDriveAPI(AbstractDriveAPI):
         else:
             return None
 
+        if folder_name == 'root':
+            folder_name = 'Secure-Cloud'
+
         h = httplib2.Http()
         resp, content = h.request(
             uri='https://www.googleapis.com/drive/v2/files?q=title+%3d+%27' + folder_name + '%27',
