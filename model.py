@@ -3,8 +3,8 @@ from gui import Gui
 class Model:
 
     def __init__(self):
-        self.view=lambda: None
-        self.opened_files=[]
+        self.view = lambda: None
+        self.opened_files = []
 
     def add_files_to_list(self, files_list):
         self.opened_files.extend(files_list)

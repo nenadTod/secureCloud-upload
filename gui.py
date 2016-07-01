@@ -9,47 +9,32 @@ from django.core.serializers.xml_serializer import EntitiesForbidden
 
 class Gui:
 
-    @property
-    def files_list(self):
-        return self.__files_list
-
-    @property
-    def files_selected_list(self):
-        return self.__files_selected_list
-
-    @property
-    def print_status(self):
-        return self.__print_status
-
-    @property
-    def print_files(self):
-        return self.__print_files
-
-    @property
-    def print_selected(self):
-        return self.__print_selected
-
-    encoding_value = 0
-    drive_value = 0
-    location_enabled = False
-    label_location_value = 0
-    button_location = 0
-
     def __init__(self, root, controller, model):
         self.controller=controller
         self.model=model
-        self.path_type=0
         self.root = root
+        self.files_list = lambda: None
+        self.files_selected_list = lambda: None
+        self.print_status = lambda: None
+        self.print_files = lambda: None
+        self.print_selected = lambda: None
+        self.path_type = 0
+        self.files_selected_list = []
+        self.encoding_value = 0
+        self.drive_value = 0
+        self.location_enabled = False
+        self.location_value = 0
+        self.button_location = 0
+
         self.create_window(root)
         self.create_status_bar(root)
         self.create_menu_bar(root)
         self.create_panels(root)
-        self.files_selected_list = []
 
     def create_window(self, root):
         root.title("Secure Clouding - Upload pictures")
-        root.geometry("420x460")
-        root.minsize(width=420, height=440)
+        root.geometry("400x440")
+        root.minsize(width=400, height=440)
         root.iconbitmap('images/icon.ico')
         root.protocol('WM_DELETE_WINDOW', lambda:self.controller.exit_action())
 
@@ -96,19 +81,14 @@ class Gui:
         value_var.set(1)
         menu_bar.add_cascade(label="View", menu=view_menu)
 
-        action_menu = Menu(menu_bar, tearoff=0)
-        action_menu.add_command(label="Encrypt and Upload", command=lambda: self.check_start_action())
-        action_menu.add_command(label="Cancel All", command=lambda: self.controller.cancel_all_action())
-        menu_bar.add_cascade(label="Action", menu=action_menu)
-
         account_menu = Menu(menu_bar, tearoff=0)
-        account_menu.add_command(label="Switch Cloud", command=lambda:self.controller.switch_account_action())
         account_menu.add_command(label="Change/Set Location", command=lambda: self.update_location())
         menu_bar.add_cascade(label="Account", menu=account_menu)
 
-        download_menu = Menu(menu_bar, tearoff=0)
-        download_menu.add_command(label="Download Gallery", command=lambda: self.controller.open_download(Gui.drive_value.get()))
-        menu_bar.add_cascade(label="Download", menu=download_menu)
+        action_menu = Menu(menu_bar, tearoff=0)
+        action_menu.add_command(label="Encrypt and Upload", command=lambda: self.check_start_action())
+        action_menu.add_command(label="Download and Decrypt", command=lambda: self.controller.open_download(self.drive_value.get()))
+        menu_bar.add_cascade(label="Action", menu=action_menu)
 
         root.config(menu=menu_bar)
 
@@ -126,35 +106,28 @@ class Gui:
 
     def create_cloud_panel(self, frame):
         frame_cloud = LabelFrame(frame, text="Cloud account:")
-        frame_cloud_buttons = Frame(frame_cloud)
+        frame_cloud_button = Frame(frame_cloud)
         frame_cloud_data = Frame(frame_cloud)
-        frame_cloud_buttons.pack(side=RIGHT, fill=BOTH, pady=0)
+        frame_cloud_button.pack(side=RIGHT, fill=BOTH, pady=0)
         frame_cloud_data.pack(side=LEFT, fill=BOTH, expand=1)
-
-        cloud_user = StringVar()
-        cloud_location = StringVar()
-
-        Gui.drive_value = StringVar(frame_cloud_data)
-        Gui.drive_value.set("Google Drive")
 
         label_cloud = Label(frame_cloud_data, anchor=W, text="Cloud name: ")
         label_location = Label(frame_cloud_data, anchor=W, text="Upload folder: ")
-        label_cloud_value = OptionMenu(frame_cloud_data, Gui.drive_value, "Google Drive", "Dropbox", "One Drive")
-        Gui.label_location_value = Entry(frame_cloud_data, text="Secure-Folder", width=40)
-        Gui.label_location_value.insert(10,"Secure-Folder")
-        Gui.label_location_value.configure(state='readonly')
 
-        button_switch = Button(frame_cloud_buttons, text="Switch Cloud", width=12, height=1)
-        Gui.button_location = Button(frame_cloud_buttons, text="Change folder", width=12, height=1, command=lambda:self.update_location())
+        self.drive_value = StringVar(frame_cloud_data)
+        self.drive_value.set("Google Drive")
+        cloud_value = OptionMenu(frame_cloud_data, self.drive_value, "Google Drive", "Dropbox", "One Drive")
+        self.location_value = Entry(frame_cloud_data, text="Secure-Folder", width=50)
+        self.location_value.insert(10,"Secure-Folder")
+        self.location_value.configure(state='readonly')
 
-        label_cloud.grid(row=0, column=0, pady=(0,0), padx=5, sticky=W)
-        label_location.grid(row=1, column=0, pady=(6, 10), padx=5, sticky=W)
-        label_cloud_value.grid(row=0, column=1, pady=0, padx=0, sticky=W)
-        Gui.label_location_value.grid(row=1, column=1, pady=(6,10), padx=0, sticky=W)
+        label_cloud.grid(row=0, column=0, pady=5, padx=5, sticky=W)
+        cloud_value.grid(row=0, column=1, pady=5, padx=0, sticky=W)
+        label_location.grid(row=1, column=0, pady=(5,15), padx=5, sticky=W)
+        self.location_value.grid(row=1, column=1, pady=(5,10), padx=2, sticky=W)
 
-        # button_switch.pack(side=BOTTOM, pady=(26,1), padx=10)
-        # button_location.pack(side=BOTTOM, pady=(1,10), padx=10)
-        Gui.button_location.pack(side=BOTTOM, pady=(30, 8), padx=10)
+        self.button_location = Button(frame_cloud_button, text="Change folder", width=12, height=1, command=lambda: self.update_location())
+        self.button_location.pack(side=BOTTOM, pady=10, padx=10)
 
         return frame_cloud
 
@@ -177,7 +150,6 @@ class Gui:
         addfold = ImageTk.PhotoImage(file="images/addfolder.png")
         remov = ImageTk.PhotoImage(file="images/remove.png")
         clear = ImageTk.PhotoImage(file="images/clear.png")
-
         button_add_folder = Button(frame_files_buttons, width=25, height=25, image=addfold, command=lambda:self.controller.add_folder_action())
         button_add_file = Button(frame_files_buttons, width=25, height=25, image=addfile, command=lambda:self.controller.add_file_action())
         button_remove_file = Button(frame_files_buttons, width=25, height=25, image=remov, command=lambda:self.controller.remove_file_action(self.files_selected_list))
@@ -196,28 +168,26 @@ class Gui:
     def create_action_panel(self, frame):
         frame_action = LabelFrame(frame, text="Actions:")
         frame_action_up = Frame(frame_action)
+        frame_action_up.pack(anchor=W)
         frame_action_down = Frame(frame_action)
+        frame_action_down.pack(anchor=E)
 
         label_crypto = Label(frame_action_up, anchor=W, text="Encryption type: ")
-        # label_process = Label(frame_action, width=15, textvariable=print_connection, relief=RIDGE)
-        label_process = Label(frame_action_down, anchor=W, text="Encrypting and uploading.....uploadinguploadinguploadinguploadinguploading")
 
-        Gui.encoding_value = IntVar()
-        radiobutton1 = Radiobutton(frame_action_up, text="For self", variable=Gui.encoding_value, value=1)
-        radiobutton2 = Radiobutton(frame_action_up, text="For sharing", variable=Gui.encoding_value, value=2)
-        Gui.encoding_value.set(1)
+        self.encoding_value = IntVar()
+        radiobutton1 = Radiobutton(frame_action_up, text="For self", variable=self.encoding_value, value=1)
+        radiobutton2 = Radiobutton(frame_action_up, text="For sharing", variable=self.encoding_value, value=2)
+        self.encoding_value.set(1)
 
-        button_download = Button(frame_action_down, text="Download and Decrypt", width=18, height=1, command=lambda: self.controller.open_download(Gui.drive_value.get()))
+        button_download = Button(frame_action_down, text="Download and Decrypt", width=18, height=1, command=lambda: self.controller.open_download(self.drive_value.get()))
         button_start = Button(frame_action_down, text="Encrypt and Upload", width=18, height=1, command=lambda: self.check_start_action())
 
-        frame_action_up.pack(anchor=W)
-        frame_action_down.pack(anchor=E)
         label_crypto.pack(side=LEFT, pady=(5,10), padx=5)
         radiobutton1.pack(side=LEFT)
         radiobutton2.pack(side=LEFT)
+
         button_start.pack(side=RIGHT, pady=(5, 10), padx=(10, 10))
         button_download.pack(side=LEFT, pady=(5, 10), padx=5)
-        #label_process.pack(side=LEFT, expand=100, pady=(5,10), padx=5)
         return frame_action
 
 ############################## FUNKCIJE ##############################
@@ -263,26 +233,26 @@ class Gui:
         self.update_list()
 
     def create_start_action(self):
-        self.controller.start_action(Gui.drive_value.get(), Gui.encoding_value.get(), Gui.label_location_value.get())
+        self.controller.start_action(self.drive_value.get(), self.encoding_value.get(), self.location_value.get())
 
     def update_location(self):
-        if (Gui.location_enabled):
-            location = Gui.label_location_value.get()
+        if self.location_enabled:
+            location = self.location_value.get()
             pattern = re.compile("^([A-Za-z0-9\-\_])+$")
             if pattern.match(location):
-                Gui.label_location_value.configure(state='readonly')
-                Gui.location_enabled = False
-                Gui.button_location.configure(text="Change Folder")
+                self.location_value.configure(state='readonly')
+                self.location_enabled = False
+                self.button_location.configure(text="Change Folder")
             else:
-                tkMessageBox.showinfo("Wrong Folder Name", "Folder name can contain only:\n"
+                tkMessageBox.showerror("Wrong Folder Name", "Folder name can contain only:\n"
                                     "Letters, Numbers, Underscores and/or Dashes!\nPlease retype folder name!")
         else:
-            Gui.label_location_value.configure(state='normal')
-            Gui.location_enabled = True
-            Gui.button_location.configure(text="Set folder")
+            self.location_value.configure(state='normal')
+            self.location_enabled = True
+            self.button_location.configure(text="Set folder")
 
     def check_start_action(self):
-        if (Gui.location_enabled):
-            tkMessageBox.showinfo("Missing Folder Name","Please confirm upload folder\nand then try again!")
+        if self.location_enabled:
+            tkMessageBox.showerror("Missing Folder Name","Please confirm upload folder\nand then try again!")
         else:
             self.create_start_action()
