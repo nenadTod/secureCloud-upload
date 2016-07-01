@@ -153,6 +153,11 @@ class Controller:
         except:
             tkMessageBox.showinfo(title="Rejection", message="Authorization rejected by user.")
         id = drive.get_user_data()
+
+        file_id = drive.get_meta_file(upload_location, 2)
+        ##### OVDE BARATAS SA FAJLOM!!! ######
+
+        drive.update_meta_file(file_id, 2)
         drive.upload(file_list, upload_location)
 
         """ Komunikacija sa serverom

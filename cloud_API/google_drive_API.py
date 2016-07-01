@@ -86,6 +86,23 @@ class GoogleDriveAPI(AbstractDriveAPI):
             body=bodyData
         )
         data = json.loads(content)
+
+        file1 = self.drive.CreateFile({'title': 'meta1-en.txt', "parents": [{"kind": "drive#fileLink", "id": data['id']}]})
+        file1.SetContentString('')
+        file1.Upload()
+
+        file2 = self.drive.CreateFile({'title': 'meta2-en.txt', "parents": [{"kind": "drive#fileLink", "id": data['id']}]})
+        file2.SetContentString('')
+        file2.Upload()
+
+        file3 = self.drive.CreateFile({'title': 'meta1-de.txt', "parents": [{"kind": "drive#fileLink", "id": data['id']}]})
+        file3.SetContentString('')
+        file3.Upload()
+
+        file4 = self.drive.CreateFile({'title': 'meta2-de.txt', "parents": [{"kind": "drive#fileLink", "id": data['id']}]})
+        file4.SetContentString('')
+        file4.Upload()
+
         return data['id']
 
     def list_subfolders(self):
@@ -132,3 +149,61 @@ class GoogleDriveAPI(AbstractDriveAPI):
                 folder_id = self.create_folder()
 
         self.main_folder = folder_id
+
+    def get_meta_file(self, folder_name, meta_type):
+
+        if meta_type == 1:
+            name = 'meta1-en.txt'
+        elif meta_type == 2:
+            name = 'meta1-de.txt'
+        elif meta_type == 3:
+            name = 'meta2-en.txt'
+        elif meta_type == 4:
+            name = 'meta2-de.txt'
+        else:
+            return None
+
+        h = httplib2.Http()
+        resp, content = h.request(
+            uri='https://www.googleapis.com/drive/v2/files?q=title+%3d+%27' + folder_name + '%27',
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
+
+        data = json.loads(content)
+
+        if not data['items']:
+            subfolder_id = self.create_folder(self.main_folder, folder_name)
+        else:
+            for d in data['items']:
+                if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['explicitlyTrashed']:
+                    subfolder_id = d['id']
+
+            if subfolder_id is None:
+                subfolder_id = self.create_folder(self.main_folder, folder_name)
+
+        file_list = self.drive.ListFile({'q': "'" + str(subfolder_id) + "' in parents and trashed=false and " +
+                                                "title = '" + name + "'"}).GetList()
+
+        for file1 in file_list:
+            file2 = self.drive.CreateFile({'id': file1['id']})
+            file2.GetContentFile(file1['title'])
+            return file1['id']
+
+    def update_meta_file(self, file_id, meta_type):
+
+        if meta_type == 1:
+            name = 'meta1-en.txt'
+        elif meta_type == 2:
+            name = 'meta1-de.txt'
+        elif meta_type == 3:
+            name = 'meta2-en.txt'
+        elif meta_type == 4:
+            name = 'meta2-de.txt'
+        else:
+            return None
+
+        file1 = self.drive.CreateFile({'id': file_id})
+        file1.SetContentFile(name)
+        file1.Upload()
+

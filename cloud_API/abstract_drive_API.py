@@ -27,3 +27,7 @@ class AbstractDriveAPI(object):
     @abstractmethod
     def download_files(self, folder_id, download_path):
         pass
+
+    #@abstractmethod
+    #def get_meta_files(self, folder_id):
+        #pass
