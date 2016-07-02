@@ -2,6 +2,9 @@ import tkFileDialog
 import tkMessageBox
 from Tkinter import *
 
+from messages import Msg
+
+
 class DownloadGui(Toplevel):
 
     def __init__(self, parent, controller, folders_dictionary):
@@ -34,8 +37,7 @@ class DownloadGui(Toplevel):
         frame_gallery = Frame(frame)
         frame_location = Frame(frame)
 
-        label_info = Label(frame, justify=LEFT, wraplength=320,
-                           text="From here you can download content of your SecureCloud galery to your computer.")
+        label_info = Label(frame, justify=LEFT, wraplength=320, text=Msg.dialog_download_explanation)
         label_gallery = Label(frame_gallery, text="Choose gallery:")
         label_location = Label(frame_location, text="Download loc:")
 
@@ -77,7 +79,7 @@ class DownloadGui(Toplevel):
 
     def prepare_download(self, gallery_chosen):
         if self.download_path == "":
-            tkMessageBox.showerror("Location Not Set", "You haven't set download location!\nPlease choose it.")
+            tkMessageBox.showerror(Msg.location_missing_title, Msg.location_missing_message)
             return
         key = gallery_chosen.get()
         value = self.galleries_dictionary[key]
