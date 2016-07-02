@@ -15,7 +15,7 @@ class SCCrypto:
         self.key_ending_RSA = "\n-----END RSA PRIVATE KEY-----\n"
         self.length_AES = 24
 
-    #splits secret key (using new key and string xor)
+    # splits secret key (using new key and string xor)
     def splitSK_RSA(self, key):
         sk = key.exportKey("PEM")
 
@@ -37,12 +37,9 @@ class SCCrypto:
         xord = binascii.hexlify(xord)
         sk2 = binascii.hexlify(sk2)
 
-        xord = binascii.b2a_base64(xord)
+        return [xord, sk2]  # 2. vraca onaj koji je vec bio string tipa
 
-        return [xord, sk2]#2. vraca onaj koji je vec bio string tipa
-
-
-    #merges two string keys into a RSA key that can only encrypt
+    # merges two string keys into a RSA key that can only encrypt
     def mergeSK_RSA(self, sk1, sk2):
 
         sk1 = binascii.unhexlify(sk1)
@@ -50,9 +47,9 @@ class SCCrypto:
 
         sk = strxor.strxor(sk1, sk2)
         sk = self.key_beginning_RSA + sk + self.key_ending_RSA
-        sk = sk[:len(sk)-1]#uvuce se neki \n, moram ovako da ga izbacim.
+        sk = sk[:len(sk)-1]  # uvuce se neki \n, moram ovako da ga izbacim.
 
-        key = RSA.importKey(sk)#identicno ce biti za import javnog
+        key = RSA.importKey(sk)  # identicno izgleda import javnog
 
         return key
 
@@ -78,10 +75,10 @@ class SCCrypto:
 
                 iv = Random.new().read(16)
                 iv_list.append(self.bin2b64(iv))
-                #encryption - bice zamenjene random vrendostima, naravno :)
+
                 aes = AES.new(sim_key, AES.MODE_CFB, iv)
                 enc_pic_data = aes.encrypt(pic_data)
-                enc_pic_data_hex = self.bin2b64(enc_pic_data)#ovo ti mozda i ne treba, zbog cuvanja mesta.. madaa?
+                enc_pic_data_hex = self.bin2b64(enc_pic_data)  # ovo ti i ne treba, zbog cuvanja mesta.. madaa? Izbacices, valja radit brze:D
 
                 with open(file_path, 'w') as fhO:
                     fhO.write(enc_pic_data_hex)
