@@ -11,6 +11,9 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 from SCCrytpo_API.SCCryptoUtil import SCCrypto
 
+from cloud_API.google_drive_API import GoogleDriveAPI
+from cloud_API.one_drive_API import OneDriveAPI
+from cloud_API.dropbox_API import DropboxAPI
 
 class SCEncryptor:
 
@@ -29,17 +32,39 @@ class SCEncryptor:
         self.length_RSA = 2048
 
         self.storage_folder = "sc_storage"
-        self.storage_file_pub = "sc_storage/public.txt"
-        self.storage_file_pri = "sc_storage/private.txt"
+        self.storage_GD_folder = "google_drive"
+        self.storage_OD_folder = "one_drive"
+        self.storage_DB_folder = "drop_box"
+        self.storage_file_pub = "public.txt"
+        self.storage_file_pri = "private.txt"
 
         self.temp_dir = "sc_temp"
 
 
     def encryptLocal(self, file_list, drive, upload_location):
 
+        file_pub = None
+        file_pri = None
+        folder_cloud = None
+
+        if isinstance(drive,  GoogleDriveAPI):
+            file_pub = self.storage_folder + "/" + self.storage_GD_folder + "/" + self.storage_file_pub
+            file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + self.storage_file_pri
+            folder_cloud = self.storage_folder + "/" + self.storage_GD_folder
+
+        if isinstance(drive,  OneDriveAPI):
+            file_pub = self.storage_folder + "/" + self.storage_OD_folder + "/" + self.storage_file_pub
+            file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + self.storage_file_pri
+            folder_cloud = self.storage_folder + "/" + self.storage_OD_folder
+
+        if isinstance(drive,  DropboxAPI):
+            file_pub = self.storage_folder + "/" + self.storage_DB_folder + "/" + self.storage_file_pub
+            file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + self.storage_file_pri
+            folder_cloud = self.storage_folder + "/" + self.storage_DB_folder
+
         #  local key storage - if it exists-> take the public key, if not...
-        if os.path.exists(self.storage_file_pub):
-            with open(self.storage_file_pub, 'r') as fhI:
+        if os.path.exists(file_pub):
+            with open(file_pub, 'r') as fhI:
                 pub_key = fhI.read()
                 key = RSA.importKey(pub_key)
 
@@ -55,21 +80,22 @@ class SCEncryptor:
                 drive.update_meta_file(file_id, self.meta1DEnum)
                 os.remove(self.meta1D)
 
-
-
         else:
             sc = SCCrypto()
 
             if not os.path.exists(self.storage_folder):
                 os.makedirs(self.storage_folder)
 
-            key = RSA.generate(2048)
+            if not os.path.exists(folder_cloud):
+                os.makedirs(folder_cloud)
+
+            key = RSA.generate(self.length_RSA)
             xord = sc.splitSK_RSA(key)
 
-            with open(self.storage_file_pub, 'w') as fhO:
+            with open(file_pub, 'w') as fhO:
                 fhO.write(key.publickey().exportKey())
 
-            with open(self.storage_file_pri, 'w') as fhO:
+            with open(file_pri, 'w') as fhO:
                     fhO.write(xord[0])
 
             file_id = drive.get_meta_file(upload_location, self.meta1DEnum)
@@ -164,7 +190,6 @@ class SCEncryptor:
             os.remove(self.meta2D)
 
         self._do_the_job(self.meta2E, self.meta2EEnum, file_list, key, upload_location, drive)
-
 
     def _do_the_job(self, metaE, metaEEnum, file_list, key, upload_location, drive):
 
