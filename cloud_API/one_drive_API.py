@@ -103,6 +103,16 @@ class OneDriveAPI(AbstractDriveAPI):
 
         return True
 
+    def download_file(self, folder_id, file_name, download_path):
+        folder = self.client.item(drive="me", id=folder_id).children.get()
+        i = 0
+        for item in folder:
+            if item.file is not None and item.name == file_name:
+                self.client.item(drive="me", id=item.id).download(download_path + "/" + item.name)
+                i += 1
+
+        return True
+
     def get_meta_file(self, folder_name, meta_type):
         if meta_type == 1:
             name = 'meta1-en.txt'

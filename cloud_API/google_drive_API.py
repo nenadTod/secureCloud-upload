@@ -126,6 +126,17 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
         return True
 
+    def download_file(self, folder_id, file_name, download_path):
+
+        file_list = self.drive.ListFile({'q': "'" + str(
+            folder_id) + "' in parents and trashed=false and title='" + file_name + "'"}).GetList()
+
+        for file1 in file_list:
+            file2 = self.drive.CreateFile({'id': file1['id']})
+            file2.GetContentFile(download_path + '/' + file1['title'])
+
+        return True
+
     def _authentication_main_folder(self):
 
         h = httplib2.Http()
