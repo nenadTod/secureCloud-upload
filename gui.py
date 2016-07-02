@@ -6,6 +6,8 @@ import re
 
 from django.core.serializers.xml_serializer import EntitiesForbidden
 
+from messages import Msg
+
 
 class Gui:
 
@@ -36,7 +38,7 @@ class Gui:
         root.geometry("400x440")
         root.minsize(width=400, height=440)
         root.iconbitmap('images/icon.ico')
-        root.protocol('WM_DELETE_WINDOW', lambda:self.controller.exit_action())
+        root.protocol('WM_DELETE_WINDOW', lambda:self.exit_action())
 
     def create_status_bar(self, root):
         status_bar = Frame(root, height=25)
@@ -70,7 +72,7 @@ class Gui:
         file_menu.add_command(label="Remove Selected File/Files", command=lambda:self.controller.remove_file_action(self.files_selected_list))
         file_menu.add_command(label="Clear Files List", command=lambda:self.controller.clear_all_action())
         file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=lambda:self.controller.exit_action())
+        file_menu.add_command(label="Exit", command=lambda:self.exit_action())
         menu_bar.add_cascade(label="File", menu=file_menu)
 
         value_var = IntVar()
@@ -244,8 +246,7 @@ class Gui:
                 self.location_enabled = False
                 self.button_location.configure(text="Change Folder")
             else:
-                tkMessageBox.showerror("Wrong Folder Name", "Folder name can contain only:\n"
-                                    "Letters, Numbers, Underscores and/or Dashes!\nPlease retype folder name!")
+                tkMessageBox.showerror(Msg.naming_folder_error_title, Msg.naming_folder_error_message)
         else:
             self.location_value.configure(state='normal')
             self.location_enabled = True
@@ -253,6 +254,10 @@ class Gui:
 
     def check_start_action(self):
         if self.location_enabled:
-            tkMessageBox.showerror("Missing Folder Name","Please confirm upload folder\nand then try again!")
+            tkMessageBox.showerror(Msg.naming_folder_missing_title, Msg.naming_folder_missing_message)
         else:
             self.create_start_action()
+
+    def exit_action(self):
+        if tkMessageBox.askokcancel(Msg.quit_application_title, Msg.quit_application_message):
+            self.root.destroy()

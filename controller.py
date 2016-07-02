@@ -2,12 +2,14 @@ import os
 import tkFileDialog
 import tkMessageBox
 
-from download_gui import DownloadGui
+from gui_download import DownloadGui
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
 from SCCrytpo_API.SCEncryptor import SCEncryptor
 from SCCrytpo_API.SCDecryptor import SCDecryptor
+from gui_uc_register import UCRegister
+from messages import Msg
 
 
 class Controller:
@@ -28,24 +30,23 @@ class Controller:
         try:
             drive.authenticate()
         except:
-            tkMessageBox.showinfo(title="Rejection", message="Authorization rejected by user.")
+            tkMessageBox.showinfo(Msg.connection_rejected_title, Msg.connection_rejected_message)
 
         if len(drive.list_subfolders()) == 0:
-            tkMessageBox.showinfo("No Available Galleries", "You have no galleries that could be downloaded!\n"
-                                                            "Please try with another account, or create gallery within this.")
+            tkMessageBox.showinfo(Msg.galleries_no_available_title, Msg.galleries_no_available_message)
         else:
             self._drive = drive
-            download_view = DownloadGui(self.view.root, self, drive.list_subfolders())
+            DownloadGui(self.view.root, self, drive.list_subfolders())
 
     def download_action(self, folder_value, download_path):
         scd = SCDecryptor()
         end = scd.decryptLocal(str(folder_value), download_path, self._drive)
 
         if end is True:
-            tkMessageBox.showinfo(title="Download success", message="Files downloaded successfully.")
+            tkMessageBox.showinfo(Msg.download_success_title, Msg.download_success_message)
 
     def register_user(self, email, password):
-        print "pozvao je pocetak download-a " + email + " na lok " + password
+        print "registruje se korisnik " + email + " sa lozinkom " + password
 
     def start_action(self, selected_drive, encryption_type, upload_location):
 
@@ -59,7 +60,7 @@ class Controller:
         try:
             drive.authenticate()
         except:
-            tkMessageBox.showinfo(title="Rejection", message="Authorization rejected by user.")
+            tkMessageBox.showinfo(Msg.connection_rejected_title, Msg.connection_rejected_message)
             return
 
         sce = SCEncryptor()
@@ -67,7 +68,7 @@ class Controller:
 
         self.clear_all_action()
 
-        tkMessageBox.showinfo(title="Upload success", message="Files uploaded successfully.")
+        tkMessageBox.showinfo(Msg.upload_success_title, Msg.upload_success_message)
 
 
     def add_file_action(self):
@@ -104,7 +105,3 @@ class Controller:
 
     def clear_all_action(self):
         self.model.clear_files_list()
-
-    def exit_action(self):
-        if tkMessageBox.askokcancel("Quit?", "Are you sure you want to quit?"):
-            self.view.root.destroy()

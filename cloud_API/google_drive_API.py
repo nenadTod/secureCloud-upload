@@ -56,7 +56,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
                 subfolder_id = self.create_folder(folder_id, folder_name)
             else:
                 for d in data['items']:
-                    if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['explicitlyTrashed']:
+                    if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['labels']['trashed']:
                         subfolder_id = d['id']
 
                 if subfolder_id is None:
@@ -142,7 +142,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
             folder_id = self.create_folder()
         else:
             for d in data['items']:
-                if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['explicitlyTrashed']:
+                if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['labels']['trashed']:
                     folder_id = d['id']
 
             if folder_id is None:
@@ -174,12 +174,13 @@ class GoogleDriveAPI(AbstractDriveAPI):
         )
 
         data = json.loads(content)
+        subfolder_id = None
 
         if not data['items']:
             subfolder_id = self.create_folder(self.main_folder, folder_name)
         else:
             for d in data['items']:
-                if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['explicitlyTrashed']:
+                if d['mimeType'] == 'application/vnd.google-apps.folder' and not d['labels']['trashed']:
                     subfolder_id = d['id']
 
             if subfolder_id is None:
