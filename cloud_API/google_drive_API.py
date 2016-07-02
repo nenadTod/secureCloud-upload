@@ -67,7 +67,11 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
         for f in files:
             k = f.rfind("\\") + 1
-            file1 = self.drive.CreateFile({'title': f[k:], "parents": [{"kind": "drive#fileLink", "id": folder_id}]})
+            file_id = self.file_exists(folder_id, f[k:])
+            if file_id is not None:
+                file1 = self.drive.CreateFile({'id': file_id})
+            else:
+                file1 = self.drive.CreateFile({'title': f[k:], "parents": [{"kind": "drive#fileLink", "id": folder_id}]})
             file1.SetContentFile(f)
             file1.Upload()
 
@@ -221,4 +225,14 @@ class GoogleDriveAPI(AbstractDriveAPI):
         file1 = self.drive.CreateFile({'id': file_id})
         file1.SetContentFile(name)
         file1.Upload()
+
+    def file_exists(self, folder_id, name):
+
+        file_list = self.drive.ListFile({'q': "'" + str(
+            folder_id) + "' in parents and trashed=false and title='" + name + "'"}).GetList()
+
+        if not file_list:
+            return None
+        else:
+            return file_list[0]['id']
 
