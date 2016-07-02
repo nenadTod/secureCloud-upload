@@ -42,6 +42,21 @@ class SCEncryptor:
             with open(self.storage_file_pub, 'r') as fhI:
                 pub_key = fhI.read()
                 key = RSA.importKey(pub_key)
+
+            file_id = drive.get_meta_file(upload_location, self.meta1DEnum)
+
+            if os.stat(self.meta1D).st_size == 0:
+
+                drive.get_meta_file("root", self.meta1DEnum)
+                if os.stat(self.meta1D).st_size == 0:
+                    # pop up - nesto nije bas po protokolu
+                    return
+
+                drive.update_meta_file(file_id, self.meta1DEnum)
+                os.remove(self.meta1D)
+
+
+
         else:
             sc = SCCrypto()
 
