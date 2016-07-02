@@ -2,8 +2,9 @@
 
 import os
 import shutil
+
 from Crypto.Cipher import AES
-from SCCryptoUtil import SCCrypto
+from SCCrytpo_API.SCCryptoUtil import SCCrypto
 
 class SCDecryptor:
 

@@ -1,27 +1,13 @@
 import os
 import tkFileDialog
 import tkMessageBox
-import shutil
-import json
-import bcrypt
-import ntpath
-from setuptools.command import upload_docs
-from Crypto.Hash import SHA256
 
 from download_gui import DownloadGui
-from uc_register_gui import UCRegister
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
-from SCEncryptor import SCEncryptor
-from SCDecryptor import SCDecryptor
-from Crypto.PublicKey import RSA
-import requests
-from Crypto.Cipher import AES
-import binascii
-
-
-from SCCryptoUtil import SCCrypto
+from SCCrytpo_API.SCEncryptor import SCEncryptor
+from SCCrytpo_API.SCDecryptor import SCDecryptor
 
 
 class Controller:

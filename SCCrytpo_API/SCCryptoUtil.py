@@ -1,10 +1,11 @@
-from Crypto.PublicKey import RSA
-from Crypto.Util import strxor
-from Crypto import Random
 import binascii
 import base64
 import os
 import ntpath
+
+from Crypto.PublicKey import RSA
+from Crypto.Util import strxor
+from Crypto import Random
 from Crypto.Cipher import AES
 
 class SCCrypto:

@@ -3,14 +3,13 @@
 import ntpath
 import shutil
 import os
-
-import requests
 import json
+import requests
 import bcrypt
 
-from SCCryptoUtil import SCCrypto
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
+from SCCrytpo_API.SCCryptoUtil import SCCrypto
 
 
 class SCEncryptor:
