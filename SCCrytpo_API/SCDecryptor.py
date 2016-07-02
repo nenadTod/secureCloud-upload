@@ -6,16 +6,36 @@ import shutil
 from Crypto.Cipher import AES
 from SCCrytpo_API.SCCryptoUtil import SCCrypto
 
+from cloud_API.google_drive_API import GoogleDriveAPI
+from cloud_API.one_drive_API import OneDriveAPI
+from cloud_API.dropbox_API import DropboxAPI
+
 class SCDecryptor:
 
     def __init__(self):
         self.temp_dir = "sc_temp_down"
         self.temp_meta1D = self.temp_dir + "/meta1-de.txt"
         self.temp_meta1E = self.temp_dir + "/meta1-en.txt"
-        self.storage_file_pri = "sc_storage/private.txt"
+
+        self.storage_folder = "sc_storage"
+        self.storage_GD_folder = self.storage_folder + "/google_drive"
+        self.storage_OD_folder = self.storage_folder + "/one_drive"
+        self.storage_DB_folder = self.storage_folder + "/drop_box"
+        self.storage_file_pri = "private.txt"
 
     # bice izmena posle, zbog nacina downloada.
     def decryptLocal(self, location_folder_value, download_path, drive):
+
+        file_pri = None
+
+        if isinstance(drive,  GoogleDriveAPI):
+            file_pri = self.storage_GD_folder + "/" + self.storage_file_pri
+
+        if isinstance(drive,  OneDriveAPI):
+            file_pri = self.storage_OD_folder + "/" + self.storage_file_pri
+
+        if isinstance(drive,  DropboxAPI):
+            file_pri = self.storage_DB_folder + "/" + self.storage_file_pri
 
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
@@ -23,7 +43,7 @@ class SCDecryptor:
         drive.download_files(location_folder_value, self.temp_dir)
 
         private1_exists = False
-        if os.path.exists(self.storage_file_pri) and os.stat(self.storage_file_pri).st_size != 0:
+        if os.path.exists(file_pri) and os.stat(file_pri).st_size != 0:
             private1_exists = True
 
         private2_exists = False
@@ -45,7 +65,7 @@ class SCDecryptor:
         with open(self.temp_meta1D, 'r') as fhI:
             key_part_1 = fhI.read()
 
-        with open(self.storage_file_pri, 'r') as fhI:
+        with open(file_pri, 'r') as fhI:
             key_part_2 = fhI.read()
 
         sc = SCCrypto()
