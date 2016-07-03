@@ -165,7 +165,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
         self.main_folder = folder_id
 
-    def get_meta_file(self, folder_name, meta_type):
+    def get_meta_file(self, folder_name, save_to_folder, meta_type):
 
         if meta_type == 1:
             name = 'meta1-en.txt'
@@ -206,19 +206,19 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
         for file1 in file_list:
             file2 = self.drive.CreateFile({'id': file1['id']})
-            file2.GetContentFile(file1['title'])
+            file2.GetContentFile(save_to_folder + '/' + file1['title'])
             return file1['id']
 
-    def update_meta_file(self, file_id, meta_type):
+    def update_meta_file(self, file_id, from_folder, meta_type):
 
         if meta_type == 1:
-            name = 'meta1-en.txt'
+            name = from_folder + '/meta1-en.txt'
         elif meta_type == 2:
-            name = 'meta1-de.txt'
+            name = from_folder + '/meta1-de.txt'
         elif meta_type == 3:
-            name = 'meta2-en.txt'
+            name = from_folder + '/meta2-en.txt'
         elif meta_type == 4:
-            name = 'meta2-de.txt'
+            name = from_folder + '/meta2-de.txt'
         else:
             return None
 
