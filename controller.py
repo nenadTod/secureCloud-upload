@@ -64,7 +64,10 @@ class Controller:
             return
 
         sce = SCEncryptor()
-        sce.encryptLocal(self.model.opened_files, drive, upload_location)
+        if encryption_type == 1:
+            sce.encryptLocal(self.model.opened_files, drive, upload_location)
+        else:
+            sce.encryptShared(self.model.opened_files, drive, upload_location)
 
         self.clear_all_action()
 
