@@ -120,13 +120,15 @@ class GoogleDriveAPI(AbstractDriveAPI):
         return ret
 
     def shared_with_me(self):
-        ret = []
+        # ret = []
+        ret = {}
         d, email = self.get_user_data()
         folder_list = self.drive.ListFile({ 'q': "not '" + email + "' in owners and trashed=false and mimeType='application/vnd.google-apps.folder'"}).GetList()
         for file1 in folder_list:
             if 'sharedWithMeDate' in file1:
-                dic = {'name': file1['title'], 'id': file1['id'], 'owner': file1['owners'][0]['emailAddress']}
-                ret.append(dic)
+                # dic = {'name': file1['title'], 'id': file1['id'], 'owner': file1['owners'][0]['emailAddress']}
+                # ret.append(dic)
+                ret[file1['title'] + ' (' + file1['owners'][0]['emailAddress'] + ')'] = file1['id']
 
         return ret
 
