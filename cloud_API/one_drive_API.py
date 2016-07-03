@@ -140,20 +140,24 @@ class OneDriveAPI(AbstractDriveAPI):
     def update_meta_file(self, file_id, from_folder, meta_type):
 
         if meta_type == 1:
-            name = from_folder + '/meta1-en.txt'
+            location = from_folder + '/meta1-en.txt'
+            name = 'meta1-en.txt'
         elif meta_type == 2:
-            name = from_folder + '/meta1-de.txt'
+            location = from_folder + '/meta1-de.txt'
+            name = 'meta1-de.txt'
         elif meta_type == 3:
-            name = from_folder + '/meta2-en.txt'
+            location = from_folder + '/meta2-en.txt'
+            name = 'meta2-en.txt'
         elif meta_type == 4:
-            name = from_folder + '/meta2-de.txt'
+            location = from_folder + '/meta2-de.txt'
+            name = 'meta2-de.txt'
         else:
             return None
 
         item = self.client.item(drive="me", id=file_id).get()
         parent_id = item.parent_reference.id
 
-        returned_item = self.client.item(drive="me", id=parent_id).children[name].upload(name)
+        returned_item = self.client.item(drive="me", id=parent_id).children[name].upload(location)
 
 
 
