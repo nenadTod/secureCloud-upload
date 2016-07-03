@@ -31,7 +31,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
         )
 
         data = json.loads(content)
-        return data['user']['emailAddress']
+        return data['user']['permissionId']
 
     def upload(self, files, folder_name):
 

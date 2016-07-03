@@ -43,24 +43,28 @@ class SCEncryptor:
 
     def encryptLocal(self, file_list, drive, upload_location):
 
+        user_id = drive.get_user_data()
+
         file_pub = None
         file_pri = None
         folder_cloud = None
 
         if isinstance(drive,  GoogleDriveAPI):
-            file_pub = self.storage_folder + "/" + self.storage_GD_folder + "/" + self.storage_file_pub
-            file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + self.storage_file_pri
-            folder_cloud = self.storage_folder + "/" + self.storage_GD_folder
+            file_pub = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pub
+            file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pri
+            folder_cloud = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id
 
         if isinstance(drive,  OneDriveAPI):
-            file_pub = self.storage_folder + "/" + self.storage_OD_folder + "/" + self.storage_file_pub
-            file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + self.storage_file_pri
-            folder_cloud = self.storage_folder + "/" + self.storage_OD_folder
+            file_pub = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pub
+            file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pri
+            folder_cloud = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id
+
 
         if isinstance(drive,  DropboxAPI):
-            file_pub = self.storage_folder + "/" + self.storage_DB_folder + "/" + self.storage_file_pub
-            file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + self.storage_file_pri
-            folder_cloud = self.storage_folder + "/" + self.storage_DB_folder
+            file_pub = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pub
+            file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pri
+            folder_cloud = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id
+
 
         #  local key storage - if it exists-> take the public key, if not...
         if os.path.exists(file_pub):
@@ -82,9 +86,6 @@ class SCEncryptor:
 
         else:
             sc = SCCrypto()
-
-            if not os.path.exists(self.storage_folder):
-                os.makedirs(self.storage_folder)
 
             if not os.path.exists(folder_cloud):
                 os.makedirs(folder_cloud)

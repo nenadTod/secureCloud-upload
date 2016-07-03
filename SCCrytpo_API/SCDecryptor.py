@@ -18,24 +18,25 @@ class SCDecryptor:
         self.temp_meta1E = self.temp_dir + "/meta1-en.txt"
 
         self.storage_folder = "sc_storage"
-        self.storage_GD_folder = self.storage_folder + "/google_drive"
-        self.storage_OD_folder = self.storage_folder + "/one_drive"
-        self.storage_DB_folder = self.storage_folder + "/drop_box"
+        self.storage_GD_folder = "google_drive"
+        self.storage_OD_folder = "one_drive"
+        self.storage_DB_folder = "drop_box"
         self.storage_file_pri = "private.txt"
 
     # bice izmena posle, zbog nacina downloada.
     def decryptLocal(self, location_folder_value, download_path, drive):
+        user_id = drive.get_user_data()
 
         file_pri = None
 
         if isinstance(drive,  GoogleDriveAPI):
-            file_pri = self.storage_GD_folder + "/" + self.storage_file_pri
+            file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pri
 
         if isinstance(drive,  OneDriveAPI):
-            file_pri = self.storage_OD_folder + "/" + self.storage_file_pri
+            file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pri
 
         if isinstance(drive,  DropboxAPI):
-            file_pri = self.storage_DB_folder + "/" + self.storage_file_pri
+            file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pri
 
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
