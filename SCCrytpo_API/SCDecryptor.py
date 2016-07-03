@@ -14,8 +14,8 @@ class SCDecryptor:
 
     def __init__(self):
         self.temp_dir = "sc_temp_down"
-        self.temp_meta1D = self.temp_dir + "/meta1-de.txt"
-        self.temp_meta1E = self.temp_dir + "/meta1-en.txt"
+        self.temp_meta1D = "meta1-de.txt"
+        self.temp_meta1E = "meta1-en.txt"
 
         self.storage_folder = "sc_storage"
         self.storage_GD_folder = "google_drive"
@@ -32,54 +32,57 @@ class SCDecryptor:
     def decryptLocal(self, location_folder_value, location_folder_name, download_path, drive):
         user_id = drive.get_user_data()
 
-        file_pri = None
+        meta_pri = self.temp_dir + "/" + self.temp_meta1D
+        meta_pub = self.temp_dir + "/" + self.temp_meta1E
+
+        stored_file_pri = None
 
         if isinstance(drive,  GoogleDriveAPI):
-            file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pri
+            stored_file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pri
 
         if isinstance(drive,  OneDriveAPI):
-            file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pri
+            stored_file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pri
 
         if isinstance(drive,  DropboxAPI):
-            file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pri
+            stored_file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pri
 
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
 
-        drive.get_meta_file(location_folder_name, self.meta1DEnum)
-        drive.get_meta_file(location_folder_name, self.meta1EEnum)
+        drive.get_meta_file(location_folder_name, self.temp_dir, self.meta1DEnum)
+        drive.get_meta_file(location_folder_name, self.temp_dir, self.meta1EEnum)
 
         private1_exists = False
-        if os.path.exists(file_pri) and os.stat(file_pri).st_size != 0:
+        if os.path.exists(stored_file_pri) and os.stat(stored_file_pri).st_size != 0:
             private1_exists = True
 
         private2_exists = False
-        if os.path.exists(self.meta1D) and os.stat(self.meta1D).st_size != 0:
+        if os.path.exists(meta_pri) and os.stat(meta_pri).st_size != 0:
             private2_exists = True
 
         list_file_exists = False
-        if os.path.exists(self.meta1E):
+        if os.path.exists(meta_pub):
             list_file_exists = True
 
         if not(private1_exists and private2_exists and list_file_exists):
             # ovde neka forma
             return
 
-        if os.stat(self.meta1E).st_size == 0:
+        if os.stat(meta_pub).st_size == 0:
             # ovde neka forma
             return
 
-        with open(self.meta1D, 'r') as fhI:
+        with open(meta_pri, 'r') as fhI:
             key_part_1 = fhI.read()
 
-        with open(file_pri, 'r') as fhI:
+        with open(stored_file_pri, 'r') as fhI:
             key_part_2 = fhI.read()
 
         sc = SCCrypto()
         key = sc.mergeSK_RSA(key_part_1, key_part_2)
 
         dsk = None
-        with open(self.meta1E, 'r') as fhI:
+        with open(meta_pub, 'r') as fhI:
 
             for line in fhI:
                 line_content = str.split(line)
@@ -101,7 +104,5 @@ class SCDecryptor:
                             fhO.write(dec_pic_data_bin)
 
         shutil.rmtree(self.temp_dir)
-        os.remove(self.meta1D)
-        os.remove(self.meta1E)
 
         return True
