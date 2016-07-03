@@ -93,6 +93,30 @@ class OneDriveAPI(AbstractDriveAPI):
 
         return ret
 
+    def shared_with_me(self):
+
+        h = httplib2.Http()
+        resp, content = h.request(
+            uri='https://api.onedrive.com/v1.0/drive/view.sharedWithMe',
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
+
+        data = json.loads(content)
+        ret = []
+        for folder in data['value']:
+            folder_name = folder['remoteItem']['name']
+            folder_id = folder['remoteItem']['id']
+            owner = folder['remoteItem']['shared']['owner']['user']['displayName']
+            dr = folder_id.split('!')[0]
+            try:
+                collection = self.client.item(drive=dr, id=folder_id).children.get()
+            except:
+                continue
+            ret.append({'name': folder_name, 'id': folder_id, 'owner': owner})
+
+        return ret
+
     def download_files(self, folder_id, download_path):
         folder = self.client.item(drive="me", id=folder_id).children.get()
         i = 0
