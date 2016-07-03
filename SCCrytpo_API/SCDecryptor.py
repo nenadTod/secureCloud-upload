@@ -23,8 +23,13 @@ class SCDecryptor:
         self.storage_DB_folder = "drop_box"
         self.storage_file_pri = "private.txt"
 
+        self.meta1E = 'meta1-en.txt'
+        self.meta1D = 'meta1-de.txt'
+        self.meta1EEnum = 1
+        self.meta1DEnum = 2
+
     # bice izmena posle, zbog nacina downloada.
-    def decryptLocal(self, location_folder_value, download_path, drive):
+    def decryptLocal(self, location_folder_value, location_folder_name, download_path, drive):
         user_id = drive.get_user_data()
 
         file_pri = None
@@ -41,29 +46,30 @@ class SCDecryptor:
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
 
-        drive.download_files(location_folder_value, self.temp_dir)
+        drive.get_meta_file(location_folder_name, self.meta1DEnum)
+        drive.get_meta_file(location_folder_name, self.meta1EEnum)
 
         private1_exists = False
         if os.path.exists(file_pri) and os.stat(file_pri).st_size != 0:
             private1_exists = True
 
         private2_exists = False
-        if os.path.exists(self.temp_meta1D) and os.stat(self.temp_meta1D).st_size != 0:
+        if os.path.exists(self.meta1D) and os.stat(self.meta1D).st_size != 0:
             private2_exists = True
 
         list_file_exists = False
-        if os.path.exists(self.temp_meta1E):
+        if os.path.exists(self.meta1E):
             list_file_exists = True
 
         if not(private1_exists and private2_exists and list_file_exists):
             # ovde neka forma
             return
 
-        if os.stat(self.temp_meta1E).st_size == 0:
+        if os.stat(self.meta1E).st_size == 0:
             # ovde neka forma
             return
 
-        with open(self.temp_meta1D, 'r') as fhI:
+        with open(self.meta1D, 'r') as fhI:
             key_part_1 = fhI.read()
 
         with open(file_pri, 'r') as fhI:
@@ -73,13 +79,15 @@ class SCDecryptor:
         key = sc.mergeSK_RSA(key_part_1, key_part_2)
 
         dsk = None
-        with open(self.temp_meta1E, 'r') as fhI:
+        with open(self.meta1E, 'r') as fhI:
 
             for line in fhI:
                 line_content = str.split(line)
                 if len(line_content) == 1:
                     dsk = key.decrypt(sc.b642bin(line_content[0]))
                 else:
+
+                    drive.download_file(location_folder_value, line_content[0], self.temp_dir)
 
                     with open(self.temp_dir + "/" + line_content[0], 'r') as fhI2:
                         enc_pic_data_hex = fhI2.read()
@@ -88,10 +96,12 @@ class SCDecryptor:
                         aes = AES.new(dsk, AES.MODE_CFB, sc.b642bin(line_content[1]))
                         dec_pic_data_bin = aes.decrypt(enc_pic_data_bin)
 
-                        location = download_path + "/" + line_content[0] # da li treba ovde taj slash?
+                        location = download_path + "/" + line_content[0]
                         with open(location, 'wb') as fhO:
                             fhO.write(dec_pic_data_bin)
 
         shutil.rmtree(self.temp_dir)
+        os.remove(self.meta1D)
+        os.remove(self.meta1E)
 
         return True

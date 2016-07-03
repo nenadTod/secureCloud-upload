@@ -38,9 +38,9 @@ class Controller:
             self._drive = drive
             DownloadGui(self.view.root, self, drive.list_subfolders())
 
-    def download_action(self, folder_value, download_path):
+    def download_action(self, folder_value, folder_name, download_path):
         scd = SCDecryptor()
-        end = scd.decryptLocal(str(folder_value), download_path, self._drive)
+        end = scd.decryptLocal(str(folder_value), folder_name, download_path, self._drive)
 
         if end is True:
             tkMessageBox.showinfo(Msg.download_success_title, Msg.download_success_message)

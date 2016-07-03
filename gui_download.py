@@ -84,4 +84,4 @@ class DownloadGui(Toplevel):
         key = gallery_chosen.get()
         value = self.galleries_dictionary[key]
         self.destroy()
-        self.controller.download_action(value, self.download_path)
+        self.controller.download_action(value, key, self.download_path)
