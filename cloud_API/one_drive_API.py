@@ -42,7 +42,7 @@ class OneDriveAPI(AbstractDriveAPI):
         )
 
         data = json.loads(content)
-        return data['id']
+        return data['id'], data['name']
 
     def upload(self, files, folder_name):
 
@@ -182,9 +182,3 @@ class OneDriveAPI(AbstractDriveAPI):
         parent_id = item.parent_reference.id
 
         returned_item = self.client.item(drive="me", id=parent_id).children[name].upload(location)
-
-
-
-
-
-

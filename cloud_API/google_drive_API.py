@@ -31,18 +31,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
         )
 
         data = json.loads(content)
-        return data['user']['permissionId']
-
-    def get_email(self):
-        h = httplib2.Http()
-        resp, content = h.request(
-            uri='https://www.googleapis.com/drive/v2/about',
-            method='GET',
-            headers={'Authorization': 'Bearer ' + self.access_token}
-        )
-
-        data = json.loads(content)
-        return data['user']['emailAddress']
+        return data['user']['permissionId'], data['user']['emailAddress']
 
     def upload(self, files, folder_name):
 
@@ -132,7 +121,8 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
     def shared_with_me(self):
         ret = []
-        folder_list = self.drive.ListFile({ 'q': "not '" + self.get_email() + "' in owners and trashed=false and mimeType='application/vnd.google-apps.folder'"}).GetList()
+        d, email = self.get_user_data()
+        folder_list = self.drive.ListFile({ 'q': "not '" + email + "' in owners and trashed=false and mimeType='application/vnd.google-apps.folder'"}).GetList()
         for file1 in folder_list:
             if 'sharedWithMeDate' in file1:
                 dic = {'name': file1['title'], 'id': file1['id'], 'owner': file1['owners'][0]['emailAddress']}
