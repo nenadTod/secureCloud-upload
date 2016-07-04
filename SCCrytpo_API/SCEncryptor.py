@@ -46,7 +46,7 @@ class SCEncryptor:
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
 
-        user_id = drive.get_user_data()
+        user_id, bl = drive.get_user_data()
 
         meta_pub = self.temp_dir + "/" + self.meta1E
         meta_pri = self.temp_dir + "/" + self.meta1D
@@ -129,7 +129,7 @@ class SCEncryptor:
         meta_pub = self.temp_dir + "/" + self.meta2E
 
 
-        uid = drive.get_user_data()
+        uid, bl = drive.get_user_data()
         hid = SHA256.new(uid).hexdigest()
 
         r = requests.post('http://127.0.0.1:8000/api/exist/', json={"id": hid})  # check if entity with that id exists
