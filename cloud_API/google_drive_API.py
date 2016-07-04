@@ -2,6 +2,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import httplib2
 import json
+import os
 from abstract_drive_API import AbstractDriveAPI
 
 
@@ -134,23 +135,69 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
     def download_files(self, folder_id, download_path):
 
-        file_list = self.drive.ListFile({'q': "'" + str(
-            folder_id) + "' in parents and trashed=false"}).GetList()
+        h = httplib2.Http()
+        uri = 'https://www.googleapis.com/drive/v2/files?q=%27' + str(folder_id) + '%27+in+parents+and+trashed%3Dfalse'
+        resp, content = h.request(
+            uri=uri,
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
 
-        for file1 in file_list:
-            file2 = self.drive.CreateFile({'id': file1['id']})
-            file2.GetContentFile(download_path + '/' + file1['title'])
+        data = json.loads(content)
+
+        if not data['items']:
+            return False
+
+        for file1 in data['items']:
+            uri = 'https://www.googleapis.com/drive/v2/files/' + str(file1['id']) + '?alt=media'
+            resp, content = h.request(
+                uri=uri,
+                method='GET',
+                headers={'Authorization': 'Bearer ' + self.access_token}
+            )
+            filename = download_path + '/' + file1['title']
+            if not os.path.exists(os.path.dirname(filename)):
+                try:
+                    os.makedirs(os.path.dirname(filename))
+                except OSError as exc:  # Guard against race condition
+                    raise
+            with open(filename, 'w+') as f:
+                f.write(content)
+
+            # file2.GetContentFile(download_path + '/' + file1['title'])
 
         return True
 
     def download_file(self, folder_id, file_name, download_path):
 
-        file_list = self.drive.ListFile({'q': "'" + str(
-            folder_id) + "' in parents and trashed=false and title='" + file_name + "'"}).GetList()
+        h = httplib2.Http()
+        uri = "https://www.googleapis.com/drive/v2/files?q=%27" + str(folder_id) + "%27+in+parents+and+trashed%3Dfalse+and+title=%27" + file_name + '%27'
+        resp, content = h.request(
+            uri=uri,
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
 
-        for file1 in file_list:
-            file2 = self.drive.CreateFile({'id': file1['id']})
-            file2.GetContentFile(download_path + '/' + file1['title'])
+        data = json.loads(content)
+
+        if not data['items']:
+            return False
+
+        for file1 in data['items']:
+            uri = 'https://www.googleapis.com/drive/v2/files/' + str(file1['id']) + '?alt=media'
+            resp, content = h.request(
+                uri=uri,
+                method='GET',
+                headers={'Authorization': 'Bearer ' + self.access_token}
+            )
+            filename = download_path + '/' + file1['title']
+            if not os.path.exists(os.path.dirname(filename)):
+                try:
+                    os.makedirs(os.path.dirname(filename))
+                except OSError as exc:  # Guard against race condition
+                    raise
+            with open(filename, 'w+') as f:
+                f.write(content)
 
         return True
 
