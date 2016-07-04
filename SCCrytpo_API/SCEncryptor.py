@@ -4,6 +4,8 @@ import ntpath
 import shutil
 import os
 import json
+import tkSimpleDialog
+
 import requests
 import bcrypt
 
@@ -169,7 +171,7 @@ class SCEncryptor:
             os.remove(meta_pri)
 
         else:
-            psw = "hassan"#оve vrednosti ce se preuzimati sa forme.
+            psw = tkSimpleDialog.askstring("Password", "Enter password", show=u"\u25CF")
 
             r = requests.post('http://127.0.0.1:8000/api/getPK/', json={"id": hid, "psw": psw})
             dct = json.loads(r.content)

@@ -49,9 +49,6 @@ class UCRegister(Toplevel):
         self.pass1_value.config(show=u"\u25CF")
         self.pass2_value.config(show=u"\u25CF")
 
-        self.email_value.bind("<<Leave>>", self.check_email_values)
-        self.pass1_value.bind("<<FocusOut>>", self.check_password_values)
-
         button_ok = Button(frame_buttons, text="Register", width=17, height=1,command=lambda: self.prepare_register(self.email_value.get(), self.pass1_value.get(), self.pass2_value.get()))
         button_cancel = Button(frame_buttons, text="Cancel", width=12, height=1, command=lambda: self.exit_action())
 
