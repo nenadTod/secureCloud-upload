@@ -34,9 +34,7 @@ class SCEncryptor:
         self.length_RSA = 2048
 
         self.storage_folder = "sc_storage"
-        self.storage_GD_folder = "google_drive"
-        self.storage_OD_folder = "one_drive"
-        self.storage_DB_folder = "drop_box"
+
         self.storage_file_pub = "public.txt"
         self.storage_file_pri = "private.txt"
 
@@ -57,21 +55,11 @@ class SCEncryptor:
         file_pri = None  # stored
         folder_cloud = None  # stored
 
-        if isinstance(drive,  GoogleDriveAPI):
-            file_pub = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pub
-            file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pri
-            folder_cloud = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id
+        drive_class_name = drive.__class__.__name__
 
-        if isinstance(drive,  OneDriveAPI):
-            file_pub = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pub
-            file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pri
-            folder_cloud = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id
-
-
-        if isinstance(drive,  DropboxAPI):
-            file_pub = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pub
-            file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pri
-            folder_cloud = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id
+        file_pub = self.storage_folder + "/" + drive_class_name + "/" + user_id + "/" + self.storage_file_pub
+        file_pri = self.storage_folder + "/" + drive_class_name + "/" + user_id + "/" + self.storage_file_pri
+        folder_cloud = self.storage_folder + "/" + drive_class_name + "/" + user_id
 
 
         #  local key storage - if it exists-> take the public key, if not...
