@@ -77,8 +77,8 @@ class SCEncryptor:
 
                 drive.get_meta_file("root", self.temp_dir, self.meta1DEnum)
                 if os.stat(meta_pri).st_size == 0:
-                    # pop up - nesto nije bas po protokolu
-                    return
+                    tkMessageBox.showerror("Error", "Application has encountered an error.")
+                    return False
 
                 drive.update_meta_file(file_id, self.temp_dir, self.meta1DEnum)
 
@@ -111,6 +111,7 @@ class SCEncryptor:
             drive.update_meta_file(file_id, self.temp_dir, self.meta1DEnum)
 
         self._do_the_job(meta_pub, self.meta1EEnum, file_list, key, upload_location, drive)
+        return True
 
 
     def encryptShared(self, file_list, drive, upload_location):
@@ -131,6 +132,9 @@ class SCEncryptor:
         if ans == "No":
             UCRegister(self.controller.view.root, self)
 
+            if self.email == "" and self.password == "":
+                return False
+
             recM = SHA256.new(self.email).hexdigest()
             psw = bcrypt.hashpw(self.password, bcrypt.gensalt())
 
@@ -142,7 +146,7 @@ class SCEncryptor:
 
             if ans == "Duplicate":
                 # pop up
-                return
+                return False
 
             pub_key = dct[0]['PK']
             key = RSA.importKey(pub_key)
@@ -174,11 +178,11 @@ class SCEncryptor:
 
             if ans == "No permission":
                 tkMessageBox.showerror("Error", "Wrong password.")
-                return
+                return False
 
             if ans == "No such entity":
                 tkMessageBox.showerror("Error", "Application has encountered an error.")
-                return
+                return False
 
             pub_key = dct[0]['PK']
             key = RSA.importKey(pub_key)
@@ -187,7 +191,7 @@ class SCEncryptor:
             drive.get_meta_file("root", self.temp_dir, self.meta2DEnum)
             if os.stat(meta_pri).st_size == 0:
                 tkMessageBox.showerror("Error", "Application has encountered an error, some data is missing.")
-                return
+                return False
 
             with open(meta_pri, 'r') as fhO:
                 prKPart = fhO.read()
@@ -201,9 +205,10 @@ class SCEncryptor:
                 with open(meta_pri, 'w') as fhO:
                     fhO.write(prKPart)
 
-                drive.update_meta_file(file_id, self.meta2DEnum)
+                drive.update_meta_file(file_id, self.temp_dir, self.meta2DEnum)
 
         self._do_the_job(meta_pub, self.meta2EEnum, file_list, key, upload_location, drive)
+        return True
 
     def _do_the_job(self, metaE, metaEEnum, file_list, key, upload_location, drive):
 

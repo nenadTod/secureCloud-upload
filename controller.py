@@ -62,13 +62,14 @@ class Controller:
 
         sce = SCEncryptor(self)
         if encryption_type == 1:
-            sce.encryptLocal(self.model.opened_files, drive, upload_location)
+            success = sce.encryptLocal(self.model.opened_files, drive, upload_location)
         else:
-            sce.encryptShared(self.model.opened_files, drive, upload_location)
+            success = sce.encryptShared(self.model.opened_files, drive, upload_location)
 
         self.clear_all_action()
 
-        tkMessageBox.showinfo(Msg.upload_success_title, Msg.upload_success_message)
+        if success:
+            tkMessageBox.showinfo(Msg.upload_success_title, Msg.upload_success_message)
 
 
     def add_file_action(self):
