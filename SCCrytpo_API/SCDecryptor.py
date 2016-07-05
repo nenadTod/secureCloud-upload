@@ -5,6 +5,7 @@ import shutil
 
 from Crypto.Cipher import AES
 from SCCrytpo_API.SCCryptoUtil import SCCrypto
+import tkMessageBox
 
 class SCDecryptor:
 
@@ -48,11 +49,11 @@ class SCDecryptor:
             list_file_exists = True
 
         if not(private1_exists and private2_exists and list_file_exists):
-            # ovde neka forma
+            tkMessageBox.showinfo("There's nothing to decrypt.")
             return
 
         if os.stat(meta_pub).st_size == 0:
-            # ovde neka forma
+            tkMessageBox.showinfo("There's nothing to decrypt.")
             return
 
         with open(meta_pri, 'r') as fhI:
@@ -68,7 +69,7 @@ class SCDecryptor:
         with open(meta_pub, 'r') as fhI:
 
             for line in fhI:
-                line_content = str.split(line)
+                line_content = line.split(",")
                 if len(line_content) == 1:
                     dsk = key.decrypt(sc.b642bin(line_content[0]))
                 else:

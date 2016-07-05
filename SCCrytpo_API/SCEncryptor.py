@@ -13,10 +13,8 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 from SCCrytpo_API.SCCryptoUtil import SCCrypto
 
-from cloud_API.google_drive_API import GoogleDriveAPI
-from cloud_API.one_drive_API import OneDriveAPI
-from cloud_API.dropbox_API import DropboxAPI
 from gui_uc_register import UCRegister
+import tkMessageBox
 
 
 class SCEncryptor:
@@ -175,11 +173,11 @@ class SCEncryptor:
             ans = dct[0]['Ans']
 
             if ans == "No permission":
-                #  pop up
+                tkMessageBox.showerror("Error", "Wrong password.")
                 return
 
             if ans == "No such entity":
-                #  pop up
+                tkMessageBox.showerror("Error", "Application has encountered an error.")
                 return
 
             pub_key = dct[0]['PK']
@@ -188,7 +186,7 @@ class SCEncryptor:
             # get a file with part of the private key located in the root folder
             drive.get_meta_file("root", self.temp_dir, self.meta2DEnum)
             if os.stat(meta_pri).st_size == 0:
-                # pop up - nesto nije po protokolu, restart ?
+                tkMessageBox.showerror("Error", "Application has encountered an error, some data is missing.")
                 return
 
             with open(meta_pri, 'r') as fhO:
@@ -222,7 +220,7 @@ class SCEncryptor:
             fhO.write(enc_sym_key + "\n")
             i = 0
             for f in file_list:
-                fhO.write(ntpath.split(f)[1] + " " + str(iv_list[i]) + "\n")
+                fhO.write(ntpath.split(f)[1] + "," + str(iv_list[i]) + "\n")
                 i += 1
 
         drive.update_meta_file(file_id, self.temp_dir, metaEEnum)
