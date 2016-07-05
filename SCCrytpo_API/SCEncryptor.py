@@ -126,7 +126,7 @@ class SCEncryptor:
         uid, bl = drive.get_user_data()
         hid = SHA256.new(uid).hexdigest()
 
-        r = requests.post('http://127.0.0.1:8000/api/exist/', json={"id": hid})
+        r = requests.post('https://127.0.0.1:8000/api/exist/', json={"id": hid}, verify=False)
         dct = json.loads(r.content)
         ans = dct[0]['Ans']
 
@@ -138,7 +138,7 @@ class SCEncryptor:
 
             self.email = ""
             self.password = ""
-            r = requests.post('http://127.0.0.1:8000/api/newE/', json={"id": hid, "psw": psw, "recM": recM})
+            r = requests.post('https://127.0.0.1:8000/api/newE/', json={"id": hid, "psw": psw, "recM": recM}, verify=False)
             dct = json.loads(r.content)
             ans = dct[0]['Ans']
 
@@ -170,7 +170,7 @@ class SCEncryptor:
         else:
             psw = tkSimpleDialog.askstring("Password", "Enter password", show=u"\u25CF")
 
-            r = requests.post('http://127.0.0.1:8000/api/getPK/', json={"id": hid, "psw": psw})
+            r = requests.post('https://127.0.0.1:8000/api/getPK/', json={"id": hid, "psw": psw}, verify=False)
             dct = json.loads(r.content)
             ans = dct[0]['Ans']
 
