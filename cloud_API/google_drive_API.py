@@ -148,6 +148,7 @@ class GoogleDriveAPI(AbstractDriveAPI):
     def download_files(self, folder_id, download_path):
 
         h = httplib2.Http()
+
         uri = 'https://www.googleapis.com/drive/v2/files?q=%27' + str(folder_id) + '%27+in+parents+and+trashed%3Dfalse'
         resp, content = h.request(
             uri=uri,
@@ -183,7 +184,8 @@ class GoogleDriveAPI(AbstractDriveAPI):
     def download_file(self, folder_id, file_name, download_path):
 
         h = httplib2.Http()
-        uri = "https://www.googleapis.com/drive/v2/files?q=%27" + str(folder_id) + "%27+in+parents+and+trashed%3Dfalse+and+title=%27" + file_name + '%27'
+        q = urllib.quote_plus("'" + str(folder_id) + "' in parents and trashed=false and title=%'" + file_name + "'")
+        uri = "https://www.googleapis.com/drive/v2/files?q=" + q
         resp, content = h.request(
             uri=uri,
             method='GET',
@@ -230,7 +232,8 @@ class GoogleDriveAPI(AbstractDriveAPI):
 
         for file1 in data['items']:
             if file1['title'] == file_name:
-                uri = 'https://www.googleapis.com/drive/v2/files/' + str(file1['id']) + '?alt=media'
+                fff = urllib.quote_plus(str(file1['id']))
+                uri = 'https://www.googleapis.com/drive/v2/files/' + fff + '?alt=media'
                 resp, content = h.request(
                     uri=uri,
                     method='GET',
@@ -300,9 +303,11 @@ class GoogleDriveAPI(AbstractDriveAPI):
         if folder_name == 'root':
             folder_name = 'Secure-Cloud'
 
+        q = urllib.quote_plus("title='" + folder_name + "'")
+
         h = httplib2.Http()
         resp, content = h.request(
-            uri='https://www.googleapis.com/drive/v2/files?q=title+%3d+%27' + folder_name + '%27',
+            uri="https://www.googleapis.com/drive/v2/files?q=" + q,
             method='GET',
             headers={'Authorization': 'Bearer ' + self.access_token}
         )
