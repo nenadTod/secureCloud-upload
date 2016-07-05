@@ -6,21 +6,11 @@ import shutil
 from Crypto.Cipher import AES
 from SCCrytpo_API.SCCryptoUtil import SCCrypto
 
-from cloud_API.google_drive_API import GoogleDriveAPI
-from cloud_API.one_drive_API import OneDriveAPI
-from cloud_API.dropbox_API import DropboxAPI
-
 class SCDecryptor:
 
     def __init__(self):
         self.temp_dir = "sc_temp_down"
-        self.temp_meta1D = "meta1-de.txt"
-        self.temp_meta1E = "meta1-en.txt"
-
         self.storage_folder = "sc_storage"
-        self.storage_GD_folder = "google_drive"
-        self.storage_OD_folder = "one_drive"
-        self.storage_DB_folder = "drop_box"
         self.storage_file_pri = "private.txt"
 
         self.meta1E = 'meta1-en.txt'
@@ -32,19 +22,12 @@ class SCDecryptor:
     def decryptLocal(self, location_folder_value, location_folder_name, download_path, drive):
         user_id, bl = drive.get_user_data()
 
-        meta_pri = self.temp_dir + "/" + self.temp_meta1D
-        meta_pub = self.temp_dir + "/" + self.temp_meta1E
+        meta_pri = self.temp_dir + "/" + self.meta1D
+        meta_pub = self.temp_dir + "/" + self.meta1E
 
-        stored_file_pri = None
+        drive_class_name = drive.__class__.__name__
 
-        if isinstance(drive,  GoogleDriveAPI):
-            stored_file_pri = self.storage_folder + "/" + self.storage_GD_folder + "/" + user_id + "/" + self.storage_file_pri
-
-        if isinstance(drive,  OneDriveAPI):
-            stored_file_pri = self.storage_folder + "/" + self.storage_OD_folder + "/" + user_id + "/" + self.storage_file_pri
-
-        if isinstance(drive,  DropboxAPI):
-            stored_file_pri = self.storage_folder + "/" + self.storage_DB_folder + "/" + user_id + "/" + self.storage_file_pri
+        stored_file_pri = self.storage_folder + "/" + drive_class_name + "/" + user_id + "/" + self.storage_file_pri
 
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
