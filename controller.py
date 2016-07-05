@@ -45,9 +45,6 @@ class Controller:
         if end is True:
             tkMessageBox.showinfo(Msg.download_success_title, Msg.download_success_message)
 
-    def register_user(self, email, password):
-        print "registruje se korisnik " + email + " sa lozinkom " + password
-
     def start_action(self, selected_drive, encryption_type, upload_location):
 
         if selected_drive == 'Google Drive':
@@ -63,7 +60,7 @@ class Controller:
             tkMessageBox.showinfo(Msg.connection_rejected_title, Msg.connection_rejected_message)
             return
 
-        sce = SCEncryptor()
+        sce = SCEncryptor(self)
         if encryption_type == 1:
             sce.encryptLocal(self.model.opened_files, drive, upload_location)
         else:

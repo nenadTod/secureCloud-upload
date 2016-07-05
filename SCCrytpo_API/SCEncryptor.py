@@ -16,11 +16,14 @@ from SCCrytpo_API.SCCryptoUtil import SCCrypto
 from cloud_API.google_drive_API import GoogleDriveAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.dropbox_API import DropboxAPI
+from gui_uc_register import UCRegister
+
 
 class SCEncryptor:
 
-    def __init__(self):
+    def __init__(self, controller):
 
+        self.controller = controller
         self.meta1E = 'meta1-en.txt'
         self.meta1D = 'meta1-de.txt'
         self.meta1EEnum = 1
@@ -40,6 +43,8 @@ class SCEncryptor:
 
         self.temp_dir = "sc_temp"
 
+        self.email = ""
+        self.password = ""
 
     def encryptLocal(self, file_list, drive, upload_location):
 
@@ -118,17 +123,21 @@ class SCEncryptor:
         meta_pri = self.temp_dir + "/" + self.meta2D
         meta_pub = self.temp_dir + "/" + self.meta2E
 
-
         uid, bl = drive.get_user_data()
         hid = SHA256.new(uid).hexdigest()
 
-        r = requests.post('http://127.0.0.1:8000/api/exist/', json={"id": hid})  # check if entity with that id exists
+        r = requests.post('http://127.0.0.1:8000/api/exist/', json={"id": hid})
         dct = json.loads(r.content)
         ans = dct[0]['Ans']
 
         if ans == "No":
-            recM = SHA256.new("nenadtod@live.com").hexdigest()#оve vrednosti ce se preuzimati sa forme.
-            psw = bcrypt.hashpw("hassan", bcrypt.gensalt())#оve vrednosti ce se preuzimati sa forme.
+            UCRegister(self.controller.view.root, self)
+
+            recM = SHA256.new(self.email).hexdigest()
+            psw = bcrypt.hashpw(self.password, bcrypt.gensalt())
+
+            self.email = ""
+            self.password = ""
             r = requests.post('http://127.0.0.1:8000/api/newE/', json={"id": hid, "psw": psw, "recM": recM})
             dct = json.loads(r.content)
             ans = dct[0]['Ans']
@@ -221,3 +230,7 @@ class SCEncryptor:
         drive.upload(enc_file_list, upload_location)
 
         shutil.rmtree(self.temp_dir)
+
+    def register_user(self, email, password):
+        self.email = email
+        self.password = password
