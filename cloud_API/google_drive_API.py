@@ -3,6 +3,7 @@ from pydrive.drive import GoogleDrive
 import httplib2
 import json
 import os
+import urllib
 from abstract_drive_API import AbstractDriveAPI
 
 
@@ -124,8 +125,19 @@ class GoogleDriveAPI(AbstractDriveAPI):
         # ret = []
         ret = {}
         d, email = self.get_user_data()
-        folder_list = self.drive.ListFile({ 'q': "not '" + email + "' in owners and trashed=false and mimeType='application/vnd.google-apps.folder'"}).GetList()
-        for file1 in folder_list:
+        q = urllib.quote_plus("not '" + email + "' in owners and trashed=false and mimeType='application/vnd.google-apps.folder'")
+
+        h = httplib2.Http()
+        uri = "https://www.googleapis.com/drive/v2/files?q=" + q
+        resp, content = h.request(
+            uri=uri,
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
+
+        data = json.loads(content)
+
+        for file1 in data['items']:
             if 'sharedWithMeDate' in file1:
                 # dic = {'name': file1['title'], 'id': file1['id'], 'owner': file1['owners'][0]['emailAddress']}
                 # ret.append(dic)
@@ -200,6 +212,53 @@ class GoogleDriveAPI(AbstractDriveAPI):
                 f.write(content)
 
         return True
+
+    def download_shared_file(self, folder_id, file_name, download_path):
+
+        d, email = self.get_user_data()
+        q = urllib.quote_plus("not '" + email + "' in owners and '" + folder_id + "' in parents and trashed=false")
+
+        h = httplib2.Http()
+        uri = "https://www.googleapis.com/drive/v2/files?q=" + q
+        resp, content = h.request(
+            uri=uri,
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
+
+        data = json.loads(content)
+
+        for file1 in data['items']:
+            if file1['title'] == file_name:
+                uri = 'https://www.googleapis.com/drive/v2/files/' + str(file1['id']) + '?alt=media'
+                resp, content = h.request(
+                    uri=uri,
+                    method='GET',
+                    headers={'Authorization': 'Bearer ' + self.access_token}
+                )
+                filename = download_path + '/' + file1['title']
+                if not os.path.exists(os.path.dirname(filename)):
+                    try:
+                        os.makedirs(os.path.dirname(filename))
+                    except OSError as exc:  # Guard against race condition
+                        raise
+                with open(filename, 'w+') as f:
+                    f.write(content)
+
+        return True
+
+    def get_user_id_by_folder_id(self, folder_id):
+        h = httplib2.Http()
+        uri = 'https://www.googleapis.com/drive/v2/files/' + str(folder_id)
+        resp, content = h.request(
+            uri=uri,
+            method='GET',
+            headers={'Authorization': 'Bearer ' + self.access_token}
+        )
+        data = json.loads(content)
+
+        return data['owners'][0]['permissionId']
+
 
     def _authentication_main_folder(self):
 
