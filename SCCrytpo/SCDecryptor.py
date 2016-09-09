@@ -4,7 +4,7 @@ import os
 import shutil
 
 from Crypto.Cipher import AES
-from SCCrytpo_API.SCCryptoUtil import SCCrypto
+from SCCrytpo.SCCryptoUtil import SCCrypto
 import tkMessageBox
 
 class SCDecryptor:

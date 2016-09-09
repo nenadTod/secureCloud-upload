@@ -6,8 +6,8 @@ from gui_download import DownloadGui
 from cloud_API.dropbox_API import DropboxAPI
 from cloud_API.one_drive_API import OneDriveAPI
 from cloud_API.google_drive_API import GoogleDriveAPI
-from SCCrytpo_API.SCEncryptor import SCEncryptor
-from SCCrytpo_API.SCDecryptor import SCDecryptor
+from SCCrytpo.SCEncryptor import SCEncryptor
+from SCCrytpo.SCDecryptor import SCDecryptor
 from gui_uc_register import UCRegister
 from messages import Msg
 

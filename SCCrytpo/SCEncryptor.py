@@ -11,7 +11,7 @@ import bcrypt
 
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
-from SCCrytpo_API.SCCryptoUtil import SCCrypto
+from SCCrytpo.SCCryptoUtil import SCCrypto
 
 from gui_uc_register import UCRegister
 import tkMessageBox
