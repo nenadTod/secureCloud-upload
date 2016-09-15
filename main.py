@@ -8,7 +8,6 @@ model = Model()
 control = Controller(model)
 view = Gui(root, control, model)
 control.view = view
-model.view = view
 
 root.mainloop()
 

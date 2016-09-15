@@ -16,7 +16,7 @@ class Controller:
 
     def __init__(self, model):
         self.model=model
-        self.view=""
+        self.view = lambda: None
 
     def open_download(self, selected_drive):
 
@@ -71,7 +71,6 @@ class Controller:
         if success:
             tkMessageBox.showinfo(Msg.upload_success_title, Msg.upload_success_message)
 
-
     def add_file_action(self):
         selected_files = []
         options = {}
@@ -86,6 +85,7 @@ class Controller:
                 full_file_path = full_file_path.replace("/", "\\")
                 selected_files.append(full_file_path)
             self.model.add_files_to_list(selected_files)
+            self.view.update_list()
 
     def add_folder_action(self):
         selected_files = []
@@ -99,10 +99,13 @@ class Controller:
                 pt = full_file_path.replace('/', '\\')
                 selected_files.append(pt)
         self.model.add_files_to_list(selected_files)
+        self.view.update_list()
 
     def remove_file_action(self, to_remove_index_list):
         if len(to_remove_index_list) > 0:
             self.model.remove_selected(to_remove_index_list)
+            self.view.update_list()
 
     def clear_all_action(self):
         self.model.clear_files_list()
+        self.view.update_list()

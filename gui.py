@@ -34,7 +34,7 @@ class Gui:
         self.create_panels(root)
 
     def create_window(self, root):
-        root.title("Secure Clouding - Upload pictures")
+        root.title("Secure Cloud - Secure uploader")
         root.geometry("400x440")
         root.minsize(width=400, height=440)
         root.iconbitmap('images/icon.ico')
@@ -177,8 +177,8 @@ class Gui:
         label_crypto = Label(frame_action_up, anchor=W, text="Encryption type: ")
 
         self.encoding_value = IntVar()
-        radiobutton1 = Radiobutton(frame_action_up, text="For self", variable=self.encoding_value, value=1)
-        radiobutton2 = Radiobutton(frame_action_up, text="For sharing", variable=self.encoding_value, value=2)
+        radiobutton1 = Radiobutton(frame_action_up, text="For storing", variable=self.encoding_value, value=1)
+        radiobutton2 = Radiobutton(frame_action_up, text="For preview", variable=self.encoding_value, value=2)
         self.encoding_value.set(1)
 
         button_download = Button(frame_action_down, text="Download and Decrypt", width=18, height=1, command=lambda: self.controller.open_download(self.drive_value.get()))
